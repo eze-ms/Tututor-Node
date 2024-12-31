@@ -1,0 +1,35 @@
+<main class="contenedor contenedor-formularios">
+    <div id="modal" class="common-modal active"> 
+        <div class="container-modal">
+            <a href="#" class="close-modal">&times;</a>
+            <h1><%= nombrePagina %></h1>
+            <% if (mensajes && Object.keys(mensajes).length) { %>
+                <% Object.keys(mensajes).forEach(categoria => { %>
+                    <% mensajes[categoria].forEach(alerta => { %>
+                        <div class="alertas">
+                            <p class="alerta <%= categoria %>"><%= alerta %></p>
+                        </div>
+                    <% }) %>
+                <% }) %>
+            <% } %>
+            
+            <form action="/crear-cuenta" method="POST" class="default-form">
+                <div class="campo">
+                    <input type="email" name="email" placeholder="E-mail" >
+                </div>
+                <div class="campo">
+                    <input type="text" name="nombre" placeholder="Nombre">
+                </div>
+                <div class="campo">
+                    <input type="password" name="password" placeholder="Password">
+                </div>
+                <div class="campo">
+                    <input type="password" name="confirmar" placeholder="Confirmar Password">
+                </div>
+                <div class="campo enviar">
+                    <input type="submit" class="btn btn-naranja" value="Crear Cuenta">
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

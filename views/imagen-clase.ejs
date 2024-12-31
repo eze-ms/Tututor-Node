@@ -1,0 +1,50 @@
+<main class="contenedor-formularios">
+    <div class="wrapper contenedor-editar-imagen">
+
+       <!-- Modal para el mensaje de advertencia -->
+        <% if (mensajes.advertencia) { %>
+            <div id="modal-advertencia" class="common-modal active">
+                <div class="container-modal">
+                    <a href="#" class="close-modal">&times;</a>
+                    <h1><i class="fa fa-exclamation-circle"></i> Aviso</h1>
+                    <%- mensajes.advertencia %> <!-- Renderizar HTML sin escapar -->
+                </div>
+            </div>
+        <% } %>
+
+        <h1><%= nombrePagina %></h1>
+
+        <div class="box-editar-imagen">
+            <form class="default-form editar-imagen" method="POST" enctype="multipart/form-data">       
+                <div class="campo">
+                    <div class="custom-file-input-wrapper">
+                        <!-- Input para seleccionar el archivo -->
+                        <input type="file" name="imagen" id="cv" class="custom-file-input" accept=".jpeg, .jpg, .png, .webp">
+                        <span id="file-name" class="custom-file-label">Seleccionar imagen</span>
+                
+                        <!-- Barra de progreso -->
+                        <div class="progress" id="progress-container" style="display: none;">
+                            <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <% if(clase.imagen) { %>
+
+                <div class="campo">
+                    <label>Imagen actual</label>
+                    <img src="/uploads/grupos/<%= clase.imagen %>" alt="imagen del gupo" width="400">
+                </div>
+
+                <% } else { %>
+                    <p>No hay imagen actual</p>
+                    <% } %>
+                <div class="campo enviar">
+                    <input type="submit" value="Subir imagen" class="btn btn-naranja">
+                </div>
+            </form>
+        </div>
+    </div>
+<script src="/js/modal.js"></script> 
+<script src="/js/upload.js"></script>
+</main>

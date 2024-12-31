@@ -1,0 +1,53 @@
+<div class="encabezado-profesor">
+    <div class="wrapper container-profesor">
+        <div class="cabecera perfil-profesor">
+            <div class="cabecera-ficha">
+                <h1><%= nombrePagina %></h1>
+                <div class="informacion-usuario">
+                    <div class="avatar-wrapper">
+                        <% if(usuario.imagen) { %>
+                            <img src="/uploads/usuarios/<%= usuario.imagen %>">
+                        <% } %>
+                    </div> 
+            
+                    <div class="texto">
+                        <%- usuario.about %>
+                    </div>
+                </div><!-- info-usuario -->
+            </div>
+            
+            <div class="clases-usuario">
+                <% if(clases.length > 0) { %>
+                    <h3>Clases de: <%= usuario.nombre %></h3>
+                    <ul class="lista-clases">
+                        <% clases.forEach(clase => { %> 
+                            <li>
+                                <div class="imagen">
+                                    <% if(clase.imagen) { %> 
+                                        <img src="/uploads/grupos/<%= clase.imagen %>">
+                                    <% } else { %>
+                                        <img src="/img/img-placeholder.webp">
+                                    <% } %>
+                                </div>
+        
+                                <div class="texto">
+                                    <a href="/clases/<%= clase.id %>">
+                                        <p><%= clase.nombre %></p>
+                                    </a>
+                                </div>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } %>
+            </div>
+        </div>    
+    </div>
+</div>
+
+
+    
+        
+           
+      
+
+

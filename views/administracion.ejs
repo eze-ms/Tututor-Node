@@ -1,0 +1,77 @@
+<main class="panel-administracion">
+
+     <!-- Modal para el mensaje de éxito -->
+     <% if (mensajes.exito) { %>
+        <div id="modal-exito" class="common-modal active">
+            <div class="container-modal">
+                <a href="#" class="close-modal">&times;</a>
+                <h1><i class="fa fa-check-circle"></i><%= mensajes.exito %></h1>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Modal para confirmar la eliminación de la clase -->
+    <div id="modal-eliminar" class="common-modal">
+        <div class="container-modal">
+            <a href="#" class="close-modal">&times;</a>
+            <h1>¿Eliminar la clase "<span id="nombre-clase"></span>"?</h1>
+            <p><i class="fa fa-exclamation-circle"></i>Una vez eliminada, no podrás recuperarla.</p>
+            <form id="form-eliminar-clase" method="POST" action="">
+                <button type="submit" class="btn btn-rojo">Eliminar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="wrapper contenedor contenedor-administracion">
+        <div class="contenedor-perfil">
+            <h2>Tu Perfil</h2>
+            <div class="profil-infos">
+                <div class="avatar-wrapper">
+                    <img src="<%= usuario.imagen ? `/uploads/usuarios/${usuario.imagen}` : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
+                    <span class="icon-camera-wrapper">
+                        <a href="/editar-perfil" class="box-image">
+                            <i class="fa-solid fa-camera"></i>
+                        </a>
+                    </span>
+                </div>
+                
+                <div class="edit-profile">
+                    <a href="/editar-perfil" class="btn btn-amarillo">Editar Perfil</a>
+                    <a href="/nueva-clase" class="btn btn-naranja">Dar Clases</a>
+                </div>
+            </div>
+           
+        </div>
+
+        <div class="seccion-admin">
+            <h2>Tus clases</h2>
+            <% if(clases.length) { %>
+                <ul>
+                    <% clases.forEach(clase => { %>
+                    <li>
+                        <div class="informacion-admin">
+                            <h3>
+                                <%= clase.nombre.split(' ').slice(0, 5).join(' ') %>
+                                <% if (clase.nombre.split(' ').length > 5) { %>...<% } %>
+                            </h3>
+                        </div>
+                        <div class="acciones contenedor-botones">
+                            <a href="/editar-clase/<%= clase.id %>" class="btn btn-amarillo">Editar</a>
+                            <a href="/imagen-clase/<%= clase.id %>" class="btn btn-rosa">Imagen</a>
+                            
+                            <!-- Formulario para eliminar la clase -->
+                            <form action="/eliminar-clase/<%= clase.id %>" method="POST">
+                                <button type="submit" class="btn btn-azul2">Eliminar</button>
+                            </form>
+                            
+                        </div>
+                    </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p>No tienes clases creadas</p>
+            <% } %>
+        </div>
+    </div>
+<script src="/js/modal.js"></script>
+</main>

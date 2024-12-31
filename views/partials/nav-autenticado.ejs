@@ -1,0 +1,14 @@
+<div class="box-admin-panel">
+    <ul class="contenedor">
+        <li><a href="<%= usuario && usuario.rol === 'profesor' ? '/administracion' : '/panel-alumno' %>">Panel de control</a></li>
+
+        <li><a href="/editar-perfil">Mi cuenta</a></li>
+    </ul>
+</div>
+<a href="<%= usuario.rol === 'profesor' ? '/administracion' : '/panel-alumno' %>">Administración</a>
+<% if (usuario.rol === 'profesor') { %>
+    <a href="/nueva-clase">Nueva clase</a>
+<% } %>
+<a href="/cerrar-sesion" id="open-modal">Cerrar sesión</a> 
+
+

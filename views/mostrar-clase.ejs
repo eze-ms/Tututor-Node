@@ -1,0 +1,155 @@
+<div class="encabezado-evento">
+  <div class="wrapper contenedor ficha-profesor">
+    <!-- Resumen del evento -->
+    <div class="resumen-evento">
+      <div class="cabecera">
+        <!-- Subcategorías -->
+        <div class="items-subcategorias">
+          <ul class="list-subcategorias">
+            <% subcategorias.forEach(function(subcategoria) { %>
+              <li><%= subcategoria.nombre %></li>
+            <% }); %>
+          </ul>
+        </div>
+        <!-- Nombre de la clase -->
+        <h1><%= clase.nombre %></h1>
+      </div>
+
+      <!-- Lugar de las clases -->
+      <div class="box-lugar">
+        <h2>Ubicación de las Clases</h2>
+        <ul class="list-items-lugar">
+          <li><%= lugar %></li>
+        </ul>
+      </div>
+
+      <!-- Información del autor -->
+      <div class="info-autor">
+        <div class="main-info">
+          <h2 class="about">Conoce a <%= clase.usuario.nombre %></h2>
+          <p class="texto-experiencia"><%= clase.usuario.about %></p>
+        </div>
+
+        <!-- Acerca de la clase -->
+        <div class="main-about-clase">
+          <h2 class="about">Detalles de la Clase</h2>
+          <div class="box-niveles">
+            <p>Nivel:</p>
+            <div class="items-niveles">
+              <ul>
+                <% if (niveles) { %>
+                  <% niveles.forEach(function(nivel) { %>
+                    <li><%= nivel %></li>
+                  <% }); %>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+          <p class="texto-clase"><%= clase.descripcion %></p>
+        </div>
+      </div>
+
+      <div class="interesados">
+        <div class="titulo">
+            <h3><%= clase.interesados.length %> Interesados</h3>
+            <a href="/interesados/<%= clase.slug %>">Ver Todos</a>
+        </div>
+      </div><!--interesados-->
+
+      <!-- Sección de comentarios -->
+      <div class="comentarios">
+        <h2>Opiniones de los Estudiantes</h2>
+        <% if (comentarios.length > 0) { %>
+          <% comentarios.forEach(comentario => { %>
+          <div class="comentario">
+            <div class="imagen">
+              <% if (comentario.usuario.imagen) { %>
+                <img src="/uploads/usuarios/<%= comentario.usuario.imagen %>" alt="imagen usuario">
+              <% } %>
+            </div>
+            <div class="texto">
+              <p><%= comentario.mensaje %></p>
+              <p class="comentario-clase">Escrito por:
+                <span class="firma-usuario"><%= comentario.usuario.nombre %></span>
+              </p>
+              <% if (usuario && (comentario.usuarioId === usuario.id || clase.usuarioId === usuario.id)) { %>
+                <form action="/eliminar-comentario" method="POST" class="eliminar-comentario">
+                  <input type="hidden" name="idComentario" value="<%= comentario.id %>">
+                  <input type="submit" value="Eliminar" class="btn btn-azul">
+                </form>
+              <% } %>
+            </div>
+          </div>
+          <% }) %>
+        <% } else { %>
+          <p>No hay comentarios</p>
+        <% } %>
+
+        <!-- Formulario para agregar comentario -->
+        <% if (usuario && usuario.id) { %>
+          <form action="/clase/<%= clase.id %>" method="POST" class="default-form comentarios">
+            <legend>Escribe un Comentario</legend>
+            <div class="campo-text-area">
+              <textarea name="comentario" placeholder="Comparte tu experiencia..." required></textarea>
+            </div>
+            <div class="campo enviar">
+              <input type="submit" value="Enviar" class="btn btn-rosa">
+            </div>
+          </form>
+        <% } else { %>
+          <p>Inicia sesión para agregar un comentario</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Datos del profesor -->
+    <div class="datos-profesor">
+      <div class="box-profesor">
+        <!-- Imagen del profesor -->
+        <div class="avatar-wrapper">
+          <img src="/uploads/usuarios/<%= clase.usuario.imagen %>" class="avatar" alt="Imagen del tutor">
+        </div>
+
+        <!-- Tutor y tarifa -->
+        <ul class="list-tutor-tarifa">
+          <li>
+            <span>Nombre del Tutor</span>
+            <span class="autor">
+              <a href="/usuarios/<%= clase.usuario.id %>"><%= clase.usuario.nombre %></a>
+            </span>
+            
+          </li>
+          <li>
+            <span>Precio por Hora</span>
+            <span class="tarifa-dinamic"><%= clase.usuario.tarifa %></span>
+          </li>
+        </ul>
+
+        <div class="contenedor-botones">
+          <a href="/crear-cuenta" class="btn btn-naranja">Contactar</a>
+        </div>
+      </div>
+
+      <div class="pregunta-interesado">
+        <% if (typeof usuario !== 'undefined' && usuario.id && usuario.rol === 'alumno') { %> 
+            <% const existe = clase.interesados.includes(usuario.id) %>
+            <form action="/confirmar-interes/<%= clase.slug %>" id="confirmar-interes">
+                <h2>¿Te interesa esta clase?</h2>
+                <div class="contenedor-botones">
+                    <% if (existe) { %>
+                        <input type="hidden" id="accion" value="cancelar">
+                        <input type="submit" class="btn btn-rosa" value="Cancelar">
+                    <% } else { %>
+                        <input type="hidden" id="accion" value="confirmar">
+                        <input type="submit" class="btn btn-azul" value="Sí">
+                    <% } %>
+                </div>
+            </form>
+        <% } else if (typeof usuario === 'undefined' || !usuario.id) { %>
+            <p><a href="/iniciar-sesion">Inicia sesión para confirmar</a></p>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>

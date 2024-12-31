@@ -1,0 +1,81 @@
+<main class="panel-administracion-alumno">
+    !-- Modal para el mensaje de éxito -->
+     <% if (mensajes.exito) { %>
+        <div id="modal-exito" class="common-modal active">
+            <div class="container-modal">
+                <a href="#" class="close-modal">&times;</a>
+                <h1><i class="fa fa-check-circle"></i><%= mensajes.exito %></h1>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Modal para confirmar la eliminación de la clase -->
+    <div id="modal-eliminar" class="common-modal">
+        <div class="container-modal">
+            <a href="#" class="close-modal">&times;</a>
+            <h1>¿Eliminar la clase "<span id="nombre-clase"></span>"?</h1>
+            <p><i class="fa fa-exclamation-circle"></i>Una vez eliminada, no podrás recuperarla.</p>
+            <form id="form-eliminar-clase" method="POST" action="">
+                <button type="submit" class="btn btn-rojo">Eliminar</button>
+            </form>
+        </div>
+    </div>
+
+   <div class="wrapper contenedor contenedor-administracion-alumno">
+       <div class="contenedor-perfil-alumno">
+            <h3>Tu Perfil</h3>
+            <div class="perfil-infos-alumno">
+                <div class="avatar-wrapper">
+                    <img src="<%= usuario.imagen ? `/uploads/usuarios/${usuario.imagen}` : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
+                    <span class="icon-camera-wrappe-alumno">
+                        <a href="/editar-perfil" class="box-image">
+                            <i class="fa-solid fa-camera"></i>
+                        </a>
+                    </span>
+                </div>
+               
+               <div class="edit-profile">
+                   <a href="/editar-perfil" class="btn btn-amarillo">Editar Perfil</a>
+               </div>
+            </div>
+       </div>
+
+    <div class="seccion-admin-alumno">
+        <h3>Tus clases favoritas</h3>
+        <% if (clasesGustadas && clasesGustadas.length > 0) { %>
+            <ul class="items-alumno">
+                <% clasesGustadas.forEach(clase => { %>
+                    <li>
+                        <div class="content-info-img">
+                            <div class="informacion-clase">
+                                <a href="/clase/<%= clase.slug %>"> 
+                                    <h3>
+                                        <%= clase.nombre.split(' ').slice(0, 5).join(' ') %>
+                                        <% if (clase.nombre.split(' ').length > 5) { %>...<% } %>
+                                    </h3>
+                                </a>
+                                <p><%= clase.usuario.nombre %></p> 
+                                <p><%= clase.usuario.tarifa %></p> 
+                            </div>
+                            <div class="box-img-clase">
+                                <img src="/uploads/grupos/<%= clase.imagen %>" alt="Imagen de la clase <%= clase.nombre %>">
+
+                            </div>
+                        </div>
+                        <div class="acciones contenedor-botones-alumno">
+                            <!-- Formulario para eliminar la clase -->
+                            <form action="/eliminar-clase/<%= clase.id %>" method="POST">
+                                <button type="submit" class="btn btn-azul2">Eliminar</button>
+                            </form>
+                        </div>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p>No tienes clases favoritas</p>
+        <% } %>
+    </div>
+     
+   </div>
+<script src="/js/modal.js"></script>
+</main>

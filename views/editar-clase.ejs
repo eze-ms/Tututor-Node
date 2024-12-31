@@ -1,0 +1,106 @@
+<main class="contenedor-formularios">
+    
+    <div class="wrapper contenedor editar-clase">
+
+       <!-- Modal para el mensaje de advertencia -->
+        <% if (mensajes.advertencia) { %>
+            <div id="modal-advertencia" class="common-modal active">
+                <div class="container-modal">
+                    <a href="#" class="close-modal">&times;</a>
+                    <h1><i class="fa fa-exclamation-circle"></i> Aviso</h1>
+                    <%- mensajes.advertencia %> <!-- Renderizar HTML sin escapar -->
+                </div>
+            </div>
+        <% } %>
+
+        <h1><%= nombrePagina %></h1>
+
+        <div class="contenedor-editar-clase">
+            <form class="default-form" method="POST">
+                <div class="campo">
+                    <label for="titulo">Título</label>
+                    <input type="text" value="<%= clase.nombre %>" name="nombre" placeholder="Nombre de la clase">
+                </div>
+        
+                <div class="campo descripcion">
+                    <div class="contenedor-editor">
+                        <label for="descripcion">Descripcion</label>
+                        <textarea id="descripcion" name="descripcion" placeholder="Escribe una descripción detallada sobre la clase y lo que los alumnos aprenderán." rows="5"><%= clase.descripcion %></textarea>
+                    </div>
+                </div>
+                
+                <!-- Categorias -->
+                <div class="campo">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="categoriaId">
+                        <option value="" selected disabled>-- Elige una categoría --</option>
+                        <% categorias.forEach(categoria => {  %>
+                            <option 
+                                value="<%= categoria.id %>"
+                                <%= (clase.categoriaId === categoria.id) ? 'selected' : '' %>
+                            >
+                            <%= categoria.nombre %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <!-- Subcategorias -->
+                <div class="campo">
+                    <label for="subcategorias">Subcategorías</label>
+                    <div class="dropdown">
+                        <button class="dropbtn">Selecciona</button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <% subcategorias.forEach(subcategoria => {  %>
+                                <div class="checkbox-item">
+                                    <label>
+                                        <input 
+                                            type="checkbox" 
+                                            name="subcategoriasId[]" 
+                                            value="<%= subcategoria.id %>"
+                                            <%= (subcategoriasSeleccionadas && subcategoriasSeleccionadas.includes(subcategoria.id)) ? 'checked' : '' %> <!-- Comparación corregida -->
+                                        >
+                                        <%= subcategoria.nombre %>
+                                    </label>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Select para elegir la provincia -->
+                <div class="campo">
+                    <label for="provincia">Provincia</label>
+                    <select id="provincia" name="ubicacion">
+                        <option value="" selected disabled>Elige una provincia</option>
+                        <option value="Madrid" <%= ubicacion === 'Madrid' ? 'selected' : '' %>>Madrid</option>
+                        <option value="Barcelona" <%= ubicacion === 'Barcelona' ? 'selected' : '' %>>Barcelona</option>
+                        <option value="Valencia" <%= ubicacion === 'Valencia' ? 'selected' : '' %>>Valencia</option>
+                        <option value="Sevilla" <%= ubicacion === 'Sevilla' ? 'selected' : '' %>>Sevilla</option>
+                        <option value="Zaragoza" <%= ubicacion === 'Zaragoza' ? 'selected' : '' %>>Zaragoza</option>
+                        <option value="Málaga" <%= ubicacion === 'Málaga' ? 'selected' : '' %>>Málaga</option>
+                        <option value="Murcia" <%= ubicacion === 'Murcia' ? 'selected' : '' %>>Murcia</option>
+                        <option value="Palma" <%= ubicacion === 'Palma' ? 'selected' : '' %>>Palma</option>
+                        <option value="Las Palmas" <%= ubicacion === 'Las Palmas' ? 'selected' : '' %>>Las Palmas</option>
+                        <option value="Bilbao" <%= ubicacion === 'Bilbao' ? 'selected' : '' %>>Bilbao</option>
+                        <option value="Alicante" <%= ubicacion === 'Alicante' ? 'selected' : '' %>>Alicante</option>
+                        <option value="Córdoba" <%= ubicacion === 'Córdoba' ? 'selected' : '' %>>Córdoba</option>
+                        <option value="Valladolid" <%= ubicacion === 'Valladolid' ? 'selected' : '' %>>Valladolid</option>
+                        <option value="Vigo" <%= ubicacion === 'Vigo' ? 'selected' : '' %>>Vigo</option>
+                        <option value="Gijón" <%= ubicacion === 'Gijón' ? 'selected' : '' %>>Gijón</option>
+                        <option value="Vitoria" <%= ubicacion === 'Vitoria' ? 'selected' : '' %>>Vitoria</option>
+                        <option value="Granada" <%= ubicacion === 'Granada' ? 'selected' : '' %>>Granada</option>
+                        <option value="Elche" <%= ubicacion === 'Elche' ? 'selected' : '' %>>Elche</option>
+                        <option value="Oviedo" <%= ubicacion === 'Oviedo' ? 'selected' : '' %>>Oviedo</option>
+                        <option value="Santa Cruz de Tenerife" <%= ubicacion === 'Santa Cruz de Tenerife' ? 'selected' : '' %>>Santa Cruz de Tenerife</option>
+                    </select>
+                    
+                </div>
+                
+                <div class="campo enviar">
+                    <input type="submit" value="Guardar cambios" class="btn btn-naranja">
+                </div>
+            </form>
+        </div>
+    </div>
+<script src="/js/modal.js"></script>
+</main>
