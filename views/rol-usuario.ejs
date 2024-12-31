@@ -1,0 +1,30 @@
+<main class="contenedor seccion-rol">
+    <h1 class="nombre-pagina"><%= nombrePagina %></h1>
+
+    <div class="formulario-rol">
+        <form action="/asignar-rol" method="POST" id="rol-form">
+            <div class="campo">
+                <h1>¿Eres alumno o profesor?</h1>
+            </div>
+            <div class="box-profesor-alumno">
+               
+                <div class="opciones-rol">
+                    <div class="rol-seleccion">
+                        <div class="rol-opcion alumn" onclick="seleccionarRol('alumno')">
+                            <img src="/img/alumno.webp" alt="Alumno">
+                            <p>Alumno/a</p>
+                        </div>
+                        <div class="rol-opcion prof" onclick="seleccionarRol('profesor')">
+                            <img src="/img/maestro.webp" alt="Profesor">
+                            <p>Profesor/a</p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="rol" id="rol-input">
+                </div>
+            </div>
+        </form>
+    </div>
+<script src="/js/select-rol.js"></script>
+</main>
+
+

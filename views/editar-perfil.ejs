@@ -1,0 +1,145 @@
+<main class="contenedor contenedor-formularios no-padding">
+    
+    <div class="wrapper contenedor">
+        <form class="default-form perfil perfil-contenedor-alumnmo" action="/editar-perfil" method="POST" enctype="multipart/form-data">
+            <div class="content-panel">
+                <div class="content-info-ubicacion">
+                    <div class="box-info-gral">
+                        <div class="title-wrapper">
+                            <h3 class="titulo-info">Información general 🙂</h3>
+                        </div>
+                        <div class="campo">
+                            <input type="text" name="nombre" value="<%= usuario.nombre %>">
+                        </div>
+                        <div class="campo">
+                            <input type="text" name="apellido" value="<%= usuario.apellido %>" placeholder="Tu apellido...">
+                        </div>
+                        <div class="campo">
+                            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<%= usuario.fecha_nacimiento ? usuario.fecha_nacimiento.toISOString().substring(0, 10) : '' %>">
+                            <p id="error" style="color: red; display: none;">Por favor, elige una fecha válida.</p>
+                        </div>
+                        <div class="campo correo">
+                            <input type="email" name="email" value="<%= usuario.email %>">
+                        </div>
+                    </div>
+
+                    <div class="ubicacion">
+                        <div class="title-wrapper">
+                            <h3 class="titulo-info">Ubicación</h3>
+                            <img src="/img/adress.svg" alt="adress picture">
+                        </div>
+                        <input type="text" name="ubicacion" placeholder="Ej: Barcelona o Madrid" value="<%= usuario.ubicacion %>">
+                    </div>
+                </div>
+
+                <div class="contenedor-descripcion-password">
+                    <div class="campo descripcion">
+                        <div class="title-wrapper">
+                            <h3>Quién soy 🤓</h3>
+                        </div>
+                        <div class="contenedor-editor">
+                            <textarea id="descripcion" name="about" rows="4" cols="50" placeholder="Escribe tu descripción aquí..."><%= usuario.about %></textarea> <!-- Cambiado a usuario.about -->
+                        </div>
+        
+                    </div>
+
+                    <% if (usuario.rol === 'profesor') { %>
+                        <!-- Niveles -->
+                        <div class="niveles">
+                            <div class="title-wrapper">
+                                <h3 class="titulo-info">Niveles</h3>
+                                <img src="/img/bombilla.png" alt="bombilla picture">
+                            </div>
+                            <div class="dropdown">
+                                <button class="dropbtn">Selecciona niveles</button>
+                                <div id="nivelesDropdown" class="dropdown-content">
+                                    <div class="checkbox-item">
+                                        <label>
+                                            <input type="checkbox" name="niveles[]" value="básico" <%= usuario.niveles && usuario.niveles.includes('básico') ? 'checked' : '' %>> Básico
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <label>
+                                            <input type="checkbox" name="niveles[]" value="intermedio" <%= usuario.niveles && usuario.niveles.includes('intermedio') ? 'checked' : '' %>> Intermedio
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <label>
+                                            <input type="checkbox" name="niveles[]" value="alto" <%= usuario.niveles && usuario.niveles.includes('alto') ? 'checked' : '' %>> Alto
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                    
+                </div>      
+
+                <div class="content-perfil-tarifa-lugar">
+                    <div class="profil-infos">
+                        <div class="title-wrapper">
+                            <h3 class="titulo-info">Foto de perfil</h3>
+                            <img src="/img/photo.svg" alt="camera picture">
+                        </div>
+                        <div class="avatar-wrapper">
+                            <img src="<%= usuario.imagen ? `/uploads/usuarios/${usuario.imagen}` : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
+                            <span class="icon-camera-wrapper">
+                                <i class="fa-solid fa-camera"></i>
+                            </span>
+                            <div class="campo">
+                                <div class="custom-file-input-wrapper">
+                                    <!-- Input para seleccionar el archivo -->
+                                    <input type="file" name="imagen" id="cv" class="custom-file-input" accept=".jpeg, .jpg, .png, .webp">
+                                    <span id="file-name" class="custom-file-label">Seleccionar imagen</span>
+                            
+                                    <!-- Barra de progreso -->
+                                    <div class="progress" id="progress-container" style="display: none;">
+                                        <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                   <% if (usuario.rol === 'profesor') { %>
+                        <!-- Tarifa -->
+                        <div class="tarifa">
+                            <div class="title-wrapper">
+                                <h3 class="titulo-info">Mis tarifas</h3>
+                                <img src="/img/euro.png" alt="euro picture">
+                            </div>
+                            <input type="text" name="tarifa" placeholder="Ej: 35€" value="<%= usuario.tarifa %>">
+                        </div>
+                    <% } %>
+
+                      <!-- Password -->
+                      <div class="campo-password">
+                        <div class="title-wrapper">
+                            <h3 class="titulo-info">Cambiar la contraseña 🔒</h3>
+                        </div>
+                        <div class="contenedor-botones">
+                            <a href="/cambiar-password" class="btn-azul">Cambiar contraseña</a>
+                        </div>
+                    </div>
+
+                    <!-- <div class="lugar">
+                        <div class="title-wrapper">
+                            <h3 class="titulo-info">Lugar de la clase</h3>
+                            <img src="/img/hablar.png" alt="lugar picture">
+                        </div>
+                        <input type="text" name="lugar" placeholder="Ej: Presencial / En línea" value="<%= usuario.lugar %>">
+                    </div> -->
+                </div>
+               
+            </div>
+            
+            <div class="campo enviar">
+                <input type="submit" class="btn btn-rosa" value="Guardar Cambios">
+            </div>
+        </form>
+    </div>
+
+<script src="/utils/date.js"></script>
+<!-- <script src="/utils/dropdown.js"></script> -->
+<script src="/js/upload.js"></script>
+</main>

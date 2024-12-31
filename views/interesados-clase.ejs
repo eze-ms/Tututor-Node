@@ -1,0 +1,24 @@
+<main class="interesados">
+    <div class="wrapper contenedor">
+        <h1><%= nombrePagina %></h1>
+    
+        <% if(interesados.length > 0 ) { %>
+            <ul class="listado-interesados">
+                <% interesados.forEach(interesado => {  %>
+                    <li>
+                        <div class="imagen">
+                            <% if(interesado.imagen) { %> 
+                                <img src="/uploads/usuarios/<%= interesado.imagen %>">
+                            <% } %>
+                        </div>
+                        <div class="texto">
+                            <p><%= interesado.nombre %></p>
+                        </div>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p class="no-interesado">No hay interesados</p>
+        <% } %>
+    </div>
+</main>

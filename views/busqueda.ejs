@@ -1,0 +1,48 @@
+<main class="bg-white categorias">
+    <div class="contenedor">
+        <h2><%= nombrePagina %></h2>
+        <% if(clases.length > 0) { %>
+            <div class="grid columnas-md-3">
+                <% if (clases.length > 0) { %>
+                    <% clases.forEach(clase => { %>
+                        <article class="card">
+                            <div class="card-texto">
+    
+                                <!-- Bloque imagen -->
+                                <div class="info-autor">
+                                    <!-- Verificar si el usuario tiene una imagen -->
+                                    <% if (clase.usuario.imagen) { %>
+                                        <div class="imagen">
+                                            <img src="/uploads/usuarios/<%= clase.usuario.imagen %>" alt="<%= clase.usuario.nombre %>">
+                                        </div>
+                                    <% } else { %>
+                                        <div class="imagen"></div>
+                                    <% } %>
+                                </div>
+    
+                                <!-- Bloque detalles del tutor -->
+                                <div class="info-detail">
+                                    <a href="/clase/<%= clase.slug %>">
+                                        <h3><%= clase.usuario.nombre %></h3>
+                                    </a>
+                                    <p><%= clase.nombre %></p>
+                                    <div class="box-descripcion-home">
+                                        <span class="descripcion"><%= clase.usuario.about %></span>
+                                    </div>
+                                    <div class="box-ubicacion-tarifa">
+                                        <span class="ubicacion"><%= clase.usuario.ubicacion %></span>
+                                        <span class="tarifa"><%= clase.usuario.tarifa %></span> 
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    <% }) %>
+                <% } else { %>
+                    <p>No hay clases disponibles por el momento.</p>
+                <% } %>
+            </div>
+        <% } else { %>
+            <p>No hay clases disponibles en esta subcategoría.</p>
+        <% } %>
+    </div>
+</main>

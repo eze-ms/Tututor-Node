@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Staatliches&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <title>TuTutor - <%- nombrePagina %></title>
+</head>
+<body>
+    <header class="site-header">
+        <div class="box-logo">
+            <a href="/">
+                <div class="logo">
+                    <span class="t1">T</span>
+                    <span class="u1">U</span>
+                    <span class="t2">T</span>
+                    <span class="u2">U</span>
+                    <span class="t3">T</span>
+                    <span class="o">O</span>
+                    <span class="r">R</span>
+                  </div>
+            </a>
+        </div>
+        
+       
+        <nav class="nav">
+            <!-- Botón del menú hamburguesa -->
+            <button id="hamburger-btn" class="hamburger-btn">&#9776;</button>
+        
+            <!-- Contenido del menú -->
+            <div id="nav-links" class="nav-links">
+                <% if (locals.usuario && locals.usuario.id) { %>  
+                    <%- include('partials/nav-autenticado.ejs') %>
+                <% } else { %>
+                    <%- include('partials/nav-no-autenticado.ejs') %>  
+                <% } %>
+            </div>
+        </nav>
+        
+    </header>
+
+    <%- body %>
+
+    <footer class="site-footer">
+        <p class="copyright">Todos los derechos reservados Tututor <%- year %></p>
+    </footer>
+
+<script src="/utils/menu-burguer.js" defer></script>
+<script src="/utils/modal.js" defer></script>
+<script src="/dist/bundle.js"></script>
+</body>
+</html>

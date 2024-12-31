@@ -1,0 +1,149 @@
+<main class="contenedor-formularios">
+    <div class="wrapper contenedor nueva-clase">
+       <!-- Modal para el mensaje de advertencia -->
+        <% if (mensajes && mensajes.advertencia) { %>
+            <div id="modal-advertencia" class="common-modal active">
+                <div class="container-modal">
+                    <a href="#" class="close-modal">&times;</a>
+                    <h1><i class="fa fa-exclamation-circle"></i> Aviso</h1>
+                    <%- mensajes.advertencia %> <!-- Renderizar HTML sin escapar -->
+                </div>
+            </div>
+        <% } %>
+
+        <h1><%= nombrePagina %></h1>
+
+        <div class="contenedor-nueva-clase">
+            <form class="default-form" action="/nueva-clase?step=<%= step %>" method="POST" enctype="multipart/form-data">
+
+                <!-- Paso 1: Título de la clase -->
+                <% if (step === 1) { %>
+                    <div class="campo">
+                        <input type="text" name="nombre" placeholder="Nombre de la clase" value="<%= claseData ? claseData.nombre : '' %>">
+                    </div>
+                <% } %>
+
+                <!-- Paso 2: Descripción -->
+                <% if (step === 2) { %>
+                    <div class="campo descripcion">
+                        <div class="contenedor-editor">
+                            <textarea id="descripcion" name="descripcion" placeholder="Escribe una descripción detallada sobre la clase y lo que los alumnos aprenderán." rows="5"><%= claseData ? claseData.descripcion : '' %></textarea>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- Paso 3: Categoría y Subcategoría -->
+                <% if (step === 3) { %>
+                    <div class="campo">
+                        <select id="categoria" name="categoriaId">
+                            <option value="" selected disabled>Elige una categoría</option>
+                            <% categorias.forEach(categoria => { %>
+                                <option value="<%= categoria.id %>" <%= claseData && claseData.categoriaId == categoria.id ? 'selected' : '' %>><%= categoria.nombre %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    
+                    <!-- Subcategorias -->
+                    <div class="campo">
+                        <div class="dropdown">
+                            <button class="dropbtn subcategorias">Selecciona subcategorías</button> <!-- Añadir clase subcategorias -->
+                            <div id="subcategoriasDropdown" class="dropdown-content">
+                                <% subcategorias.forEach(subcategoria => {  %>
+                                    <div class="checkbox-item">
+                                        <label>
+                                            <input 
+                                                type="checkbox" 
+                                                name="subcategoriasId[]" 
+                                                value="<%= subcategoria.id %>"
+                                                <%= claseData && claseData.subcategoriasId && claseData.subcategoriasId.includes(subcategoria.id.toString()) ? 'checked' : '' %>
+                                            >
+                                            <%= subcategoria.nombre %>
+                                        </label>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        </div>
+                    </div>
+                
+                <% } %>
+
+                <!-- Paso 4: Ubicación -->
+                <% if (step === 4) { %>
+                    <div class="campo">
+                        <select id="provincia" name="ubicacion" required>
+                            <option value="" selected disabled>Elige una provincia</option>
+                            <option value="Madrid" <%= claseData && claseData.ubicacion === 'Madrid' ? 'selected' : '' %>>Madrid</option>
+                            <option value="Barcelona" <%= claseData && claseData.ubicacion === 'Barcelona' ? 'selected' : '' %>>Barcelona</option>
+                            <option value="Valencia" <%= claseData && claseData.ubicacion === 'Valencia' ? 'selected' : '' %>>Valencia</option>
+                            <option value="Sevilla" <%= claseData && claseData.ubicacion === 'Sevilla' ? 'selected' : '' %>>Sevilla</option>
+                            <option value="Zaragoza" <%= claseData && claseData.ubicacion === 'Zaragoza' ? 'selected' : '' %>>Zaragoza</option>
+                            <option value="Málaga" <%= claseData && claseData.ubicacion === 'Málaga' ? 'selected' : '' %>>Málaga</option>
+                            <option value="Murcia" <%= claseData && claseData.ubicacion === 'Murcia' ? 'selected' : '' %>>Murcia</option>
+                            <option value="Palma" <%= claseData && claseData.ubicacion === 'Palma' ? 'selected' : '' %>>Palma</option>
+                            <option value="Las Palmas" <%= claseData && claseData.ubicacion === 'Las Palmas' ? 'selected' : '' %>>Las Palmas</option>
+                            <option value="Bilbao" <%= claseData && claseData.ubicacion === 'Bilbao' ? 'selected' : '' %>>Bilbao</option>
+                            <option value="Alicante" <%= claseData && claseData.ubicacion === 'Alicante' ? 'selected' : '' %>>Alicante</option>
+                            <option value="Córdoba" <%= claseData && claseData.ubicacion === 'Córdoba' ? 'selected' : '' %>>Córdoba</option>
+                            <option value="Valladolid" <%= claseData && claseData.ubicacion === 'Valladolid' ? 'selected' : '' %>>Valladolid</option>
+                            <option value="Vigo" <%= claseData && claseData.ubicacion === 'Vigo' ? 'selected' : '' %>>Vigo</option>
+                            <option value="Gijón" <%= claseData && claseData.ubicacion === 'Gijón' ? 'selected' : '' %>>Gijón</option>
+                            <option value="Vitoria" <%= claseData && claseData.ubicacion === 'Vitoria' ? 'selected' : '' %>>Vitoria</option>
+                            <option value="Granada" <%= claseData && claseData.ubicacion === 'Granada' ? 'selected' : '' %>>Granada</option>
+                            <option value="Elche" <%= claseData && claseData.ubicacion === 'Elche' ? 'selected' : '' %>>Elche</option>
+                            <option value="Oviedo" <%= claseData && claseData.ubicacion === 'Oviedo' ? 'selected' : '' %>>Oviedo</option>
+                            <option value="Santa Cruz de Tenerife" <%= claseData && claseData.ubicacion === 'Santa Cruz de Tenerife' ? 'selected' : '' %>>Santa Cruz de Tenerife</option>
+                            <!-- Añade más provincias si es necesario -->
+                        </select> 
+                    </div>
+                <% } %>
+                
+                <!-- Paso 5: Modalidad -->
+                <% if (step === 5) { %>
+                    <div class="campo">
+                        <label for="modalidad">Modalidad</label>
+                        <select id="modalidad" name="modalidad">
+                            <option value="" selected disabled>Elige una modalidad</option>
+                            <option value="Presencial" <%= claseData && claseData.modalidad === 'Presencial' ? 'selected' : '' %>>Presencial</option>
+                            <option value="Online" <%= claseData && claseData.modalidad === 'Online' ? 'selected' : '' %>>Online</option>
+                            <option value="Presencial/Online" <%= claseData && claseData.modalidad === 'Presencial/Online' ? 'selected' : '' %>>Presencial/Online</option>
+                        </select>
+                    </div>
+                <% } %>
+
+                <!-- Paso 6: Imagen -->
+                <% if (step === 6) { %>
+                    <div class="campo">
+                        <div class="custom-file-input-wrapper">
+                            <!-- Input para seleccionar el archivo -->
+                            <input type="file" name="imagen" id="cv" class="custom-file-input" accept=".jpeg, .jpg, .png, .webp">
+                            <span id="file-name" class="custom-file-label">Seleccionar imagen</span>
+                    
+                            <!-- Barra de progreso -->
+                            <div class="progress" id="progress-container" style="display: none;">
+                                <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <div class="campo enviar">
+                    <!-- Botón 'Volver' si no estamos en el primer paso -->
+                    <% if (step > 1) { %>
+                        <a href="/nueva-clase?step=<%= step - 1 %>" class="btn btn-secundario">Volver</a>
+                    <% } %>
+
+                    <!-- Mostrar 'Siguiente' si no estamos en el último paso -->
+                    <% if (step < 5) { %>
+                        <input type="submit" value="Siguiente" class="btn btn-naranja">
+                        <% } else { %>
+                        <input type="submit" value="Crear Clase" class="btn btn-naranja">
+                    <% } %>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script src="/js/modal.js"></script>
+<script src="/js/upload.js"></script>
+<script src="/utils/dropdown.js"></script>
+</main>

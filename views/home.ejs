@@ -1,0 +1,194 @@
+<!-- Hero Section -->
+<header class="hero">
+    <div class="wrapper contenedor">
+        <div class="box-left">
+            <h1>Encuentra tutorías <br>de calidad, presenciales <br>o en línea</h1>
+            <p>Clases personalizadas "one to one" con instructores expertos, adaptadas a tus objetivos e intereses.</p>
+            <div class="contenedor-botones">
+                <a href="/crear-cuenta" class="btn btn-naranja">Crea tu cuenta gratis</a>
+            </div>
+        </div>
+        
+        <div class="box-right">
+            <div class="grid-figuras">
+                <!-- Círculo en la parte superior izquierda -->
+                <div class="figura circulo">
+                    <img src="img/task.webp" alt="Figura 1">
+                </div>
+                <!-- Cuadrado a la derecha del círculo -->
+                <div class="figura cuadrado">
+                    <img src="img/emotional-training.webp" alt="Figura 2">
+                </div>
+                <!-- Cuadrado debajo del círculo -->
+                <div class="figura cuadrado cuadrado-dos">
+                    <img src="img/headband.webp" alt="Figura 3">
+                </div>
+                <!-- Figura en forma de D debajo del primer cuadrado -->
+                <div class="d-shape">
+                    <svg width="400" height="400" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <clipPath id="d-clip">
+                            <path d="M 20,10 Q 10,10 10,20 L 10,80 Q 10,90 20,90 L 50,90 A 40,40 0 0 0 50,10 Z" />
+                        </clipPath>
+                        <image href="img/cooking.webp" clip-path="url(#d-clip)" width="100" height="100" x="-10" preserveAspectRatio="xMidYMid slice" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Sección de subcategorías con iconos -->
+<section class="bg-white categorias">
+    <div class="contenedor lista-categorias">
+        <span class="control prev">&larr;</span>
+        <ul class="list-items">
+            <% subcategoriasConIconos.forEach(subcategoria => { %>
+                <li class="categoria-item">
+                    <a class="list-item" href="/clases/<%= subcategoria.slug %>">
+                        <img src="/<%= iconos[subcategoria.nombre] %>" alt="<%= subcategoria.nombre %> Icono">
+                        <span><%= subcategoria.nombre %></span>
+                    </a>
+                </li>
+            <% }) %>
+        </ul>
+        <span class="control next">&rarr;</span> <!-- Control para avanzar -->
+    </div>
+</section>
+
+<!-- Buscador de Clases -->
+<section class="buscador-inicio">
+    <div class="contenedor home">
+        <h2>Encuentra el tutor adecuado para ti</h2>
+        <form action="/busqueda" method="GET" class="busqueda-categoria">
+            <!-- Select de categorías -->
+            <select name="categoria" class="cat">
+                <option value=""  selected>Todas</option>
+                <% categorias.forEach(categoria => { %>
+                    <option value="<%= categoria.id %>"><%= categoria.nombre %></option>
+                <% }) %>
+            </select>
+            <!-- Select de ubicaciones -->
+            <select name="ubicacion" class="ubic">
+                <option value="" selected>Todas</option>
+                <% ubicaciones.forEach(ubicacion => { %>
+                    <option value="<%= ubicacion %>"><%= ubicacion %></option>
+                <% }) %>
+              </select>
+              
+            <input type="submit" value="Encuentra tu clase" class="btn btn-amarillo">
+        </form>
+    </div>
+</section>
+
+<!-- Listado de Clases y Tutores -->
+<section class="main-tutor">
+    <div class="contenedor">
+        <h2>¡No te pierdas las próximas clases!</h2>
+        <div class="grid columnas-md-3">
+            <% if (clases.length > 0) { %>
+                <% clases.forEach(clase => { %>
+                    <article class="card">
+                        <a href="/clase/<%= clase.slug %>">
+                            <div class="card-texto">
+    
+                                <!-- Bloque imagen -->
+                                <div class="info-autor">
+                                    <!-- Verificar si el usuario tiene una imagen -->
+                                    <% if (clase.usuario.imagen) { %>
+                                        <div class="imagen">
+                                            <img src="/uploads/usuarios/<%= clase.usuario.imagen %>" alt="<%= clase.usuario.nombre %>">
+                                        </div>
+                                    <% } else { %>
+                                        <div class="imagen"></div>
+                                    <% } %>
+                                </div>
+    
+                                <!-- Bloque detalles del tutor -->
+                                <div class="info-detail">
+                                   
+                                        <h3><%= clase.usuario.nombre %></h3>
+                                   
+                                    <p><%= clase.nombre %></p>
+                                    <div class="box-descripcion-home">
+                                        <span class="descripcion"><%= clase.usuario.about %></span>
+                                    </div>
+                                    <div class="box-ubicacion-tarifa">
+                                        <span class="ubicacion"><%= clase.usuario.ubicacion %></span>
+                                        <span class="tarifa"><%= clase.usuario.tarifa %></span> 
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                <% }) %>
+            <% } else { %>
+                <p>No hay clases disponibles por el momento.</p>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<!-- Modal de Iniciar Sesión -->
+<div id="modal" class="common-modal <%= mostrarModal ? 'active' : '' %>">
+    <% if (mostrarModal) { %>
+        <div class="container-modal">
+            <a href="#" class="close-modal">&times;</a>
+            <h1>Iniciar Sesión</h1>
+            <% if (mensajes && Object.keys(mensajes).length) { %>
+                <% mensajes[categoria].forEach(alerta => { %>
+                    <div class="alertas">
+                        <p class="alerta <%= categoria %>"><%= alerta %></p>
+                    </div>
+                <% }) %>
+            <% } %>
+            <form action="/iniciar-sesion" method="POST" class="default-form">
+                <div class="campo">
+                    <input type="email" name="email" placeholder="E-mail">
+                </div>
+                <div class="campo">
+                    <input type="password" name="password" placeholder="Password">
+                </div>
+                <div class="campo enviar">
+                    <input type="submit" class="btn btn-naranja" value="Iniciar sesión">
+                </div>
+            </form>
+        </div>
+    <% } %>
+</div>
+
+<!-- Modal de Crear Cuenta -->
+<div id="modal-crear-cuenta" class="common-modal <%= mostrarCrearCuenta ? 'active' : '' %>">
+    <% if (mostrarCrearCuenta) { %>
+        <div class="container-modal">
+            <a href="#" class="close-modal">&times;</a>
+            <h1>Crear Cuenta</h1>
+            <% if (mensajes && Object.keys(mensajes).length) { %>
+                <% mensajes[categoria].forEach(alerta => { %>
+                    <div class="alertas">
+                        <p class="alerta <%= categoria %>"><%= alerta %></p>
+                    </div>
+                <% }) %>
+            <% } %>
+            <form action="/crear-cuenta" method="POST" class="default-form">
+                <div class="campo">
+                    <input type="email" name="email" placeholder="E-mail">
+                </div>
+                <div class="campo">
+                    <input type="text" name="nombre" placeholder="Nombre">
+                </div>
+                <div class="campo">
+                    <input type="password" name="password" placeholder="Password">
+                </div>
+                <div class="campo">
+                    <input type="password" name="confirmar" placeholder="Confirmar Password">
+                </div>
+                <div class="campo enviar">
+                    <input type="submit" class="btn btn-naranja" value="Crear Cuenta">
+                </div>
+            </form>
+        </div>
+    <% } %>
+</div>
+
+<script src="/utils/carousel.js"></script>
+<script src="/utils/modal.js"></script>
