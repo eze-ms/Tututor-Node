@@ -104,6 +104,11 @@ app.use('/', router()); // Asegúrate de que router() esté correctamente llamad
 const clasesApi = require('./routes/api/subcategorias'); 
 app.use('/api', clasesApi); 
 
+// Ruta base para pruebas
+app.get('/', (req, res) => {
+  res.send('¡Servidor funcionando correctamente!');
+});
+
 // --------------------------------------
 //! 6. Inicialización del Servidor
 // --------------------------------------
