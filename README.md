@@ -47,7 +47,7 @@ Tututor es una plataforma en línea donde profesores ofrecen sus clases. Está c
 ## 🛠️ Instalación
 1. Clona este repositorio:
    ```bash
-   git clone https://github.com/eze-ms/tututor.git
+   git clone https://github.com/eze-ms/Tututor-Node
    ```
 2. Instala las dependencias:
    ```bash
