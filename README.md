@@ -49,19 +49,6 @@ Tututor es una plataforma en línea donde profesores ofrecen sus clases. Está c
    ```bash
    git clone https://github.com/eze-ms/Tututor-Node
    ```
-2. Instala las dependencias:
-   ```bash
-   npm install
-   ```
----
-
-## 🔧 Ejecución
-1. Inicia el servidor en desarrollo:
-   ```bash
-   npm run dev
-   ```
-2. Accede a la aplicación en: `http://localhost:5000`.
-
 ---
 
 ## ✨ Características Adicionales
