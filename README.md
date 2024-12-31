@@ -53,19 +53,6 @@ Tututor es una plataforma en línea donde profesores ofrecen sus clases. Está c
    ```bash
    npm install
    ```
-3. Configura las variables de entorno en un archivo `.env`:
-   ```env
-   DATABASE_URL=postgresql://usuario:password@host:puerto/basededatos
-   ```
-4. Ejecuta las migraciones:
-   ```bash
-   npx sequelize-cli db:migrate
-   ```
-5. (Opcional) Carga datos iniciales:
-   ```bash
-   npx sequelize-cli db:seed:all
-   ```
-
 ---
 
 ## 🔧 Ejecución
