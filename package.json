@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Proyecto clon Meetup con Node, PostSQL, EJS",
   "main": "index.js",
-  "scripts": {
-    "dev": "nodemon ./index.js",
-    "start": "concurrently \"npm run dev\" \"npm run watch\"",
-    "watch": "webpack --watch --mode development"
-  },
+ "scripts": {
+  "start": "node ./index.js",
+  "dev": "nodemon ./index.js",
+  "watch": "webpack --watch --mode development"
+},
   "author": "Ezequiel Macchi Seoane",
   "license": "ISC",
   "devDependencies": {
