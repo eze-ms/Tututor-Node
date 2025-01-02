@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ./index.js",
     "dev": "nodemon ./index.js",
-    "watch": "webpack --watch --mode development"
+    "watch": "webpack --watch --mode development",
+    "postinstall": "npm install pg"
   },
   "author": "Ezequiel Macchi Seoane",
   "license": "ISC",
