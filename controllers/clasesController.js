@@ -211,16 +211,26 @@ exports.crearClase = async (req, res) => {
                 usuarioId: req.user.id
             });
 
+            // Validar si los subcategoriaId existen en la base de datos
+            const validIds = await Subcategoria.findAll({
+                where: { id: subcategoriasId }
+            });
+
+            if (validIds.length !== subcategoriasId.length) {
+                req.flash('error', 'Algunas subcategorías no existen.');
+                return res.redirect('/nueva-clase?step=3');
+            }
+
             // Insertar manualmente las relaciones en la tabla intermedia
             if (subcategoriasId && subcategoriasId.length > 0) {
                 const relaciones = subcategoriasId.map(subcategoriaId => ({
                     claseId: clase.id,
                     subcategoriaId
                 }));
-                await db.models.ClaseSubcategoria.bulkCreate(relaciones); // Insertar las relaciones en la tabla intermedia
+                await db.models.ClaseSubcategoria.bulkCreate(relaciones);
             }
-
             req.flash('exito', 'Clase creada correctamente');
+
             return res.redirect('/administracion');
         } catch (error) {
             console.error('Error al crear la clase:', error);

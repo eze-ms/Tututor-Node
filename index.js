@@ -26,9 +26,11 @@ require('./models/Clases');
 require('./models/Comentarios');
 require('./models/Subcategorias');
 require('./models/ClaseSubcategoria');
+require('./models/associations');
+
 
 // Conexión a la Base de Datos y sincronización
-db.sync({ alter: true }) // Actualiza la estructura sin eliminar datos
+db.sync()
   .then(() => console.log('DB Conectada correctamente'))
   .catch((error) => console.log('Error al conectar con la DB:', error));
 
