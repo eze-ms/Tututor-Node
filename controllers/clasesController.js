@@ -157,7 +157,7 @@ exports.crearClase = async (req, res) => {
                 .notEmpty().withMessage('La ubicación es obligatoria.')
                 .trim().escape()
         );
-    } else if (step === 5) { // Nueva validación para el paso de modalidad
+    } else if (step === 5) { 
         validaciones.push(
             body('modalidad')
                 .notEmpty().withMessage('Debes seleccionar una modalidad.')
@@ -170,6 +170,7 @@ exports.crearClase = async (req, res) => {
 
     if (!errores.isEmpty()) {
         const mensajesAdvertencia = errores.array().map(error => error.msg);
+        console.log("DEBUG: Errores de validación", mensajesAdvertencia);
 
         return res.render('nueva-clase', {
             nombrePagina: "Crear nueva clase",
