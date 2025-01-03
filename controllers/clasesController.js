@@ -157,7 +157,7 @@ exports.crearClase = async (req, res) => {
                 .notEmpty().withMessage('La ubicación es obligatoria.')
                 .trim().escape()
         );
-    } else if (step === 5) { // Nueva validación para el paso de modalidad
+    } else if (step === 5) { 
         validaciones.push(
             body('modalidad')
                 .notEmpty().withMessage('Debes seleccionar una modalidad.')
@@ -185,7 +185,13 @@ exports.crearClase = async (req, res) => {
     Object.assign(claseData, req.body);
     req.session.claseData = claseData;
 
-    if (step === 6) { // Cambiado a step 6 ya que es el último paso antes de guardar
+    // ✅ Validación de categoriaId antes de crear la clase
+    if (!claseData.categoriaId) {
+        req.flash('error', 'Debes seleccionar una categoría válida.');
+        return res.redirect('/nueva-clase?step=3');
+    }
+
+    if (step === 6) {
         try {
             const { nombre, descripcion, categoriaId, subcategoriasId, ubicacion, modalidad } = claseData;
 
@@ -206,31 +212,31 @@ exports.crearClase = async (req, res) => {
                 descripcion: descripcionLimpia,
                 categoriaId,
                 ubicacion,
-                modalidad, // Incluir modalidad en la creación de la clase
+                modalidad, 
                 imagen,
                 usuarioId: req.user.id
             });
 
             // Validar si los subcategoriaId existen en la base de datos
-            const validIds = await Subcategoria.findAll({
-                where: { id: subcategoriasId }
-            });
-
-            if (validIds.length !== subcategoriasId.length) {
-                req.flash('error', 'Algunas subcategorías no existen.');
-                return res.redirect('/nueva-clase?step=3');
-            }
-
-            // Insertar manualmente las relaciones en la tabla intermedia
             if (subcategoriasId && subcategoriasId.length > 0) {
+                const validIds = await Subcategoria.findAll({
+                    where: { id: subcategoriasId }
+                });
+
+                if (validIds.length !== subcategoriasId.length) {
+                    req.flash('error', 'Algunas subcategorías no existen.');
+                    return res.redirect('/nueva-clase?step=3');
+                }
+
+                // Insertar manualmente las relaciones en la tabla intermedia
                 const relaciones = subcategoriasId.map(subcategoriaId => ({
                     claseId: clase.id,
                     subcategoriaId
                 }));
                 await db.models.ClaseSubcategoria.bulkCreate(relaciones);
             }
-            req.flash('exito', 'Clase creada correctamente');
 
+            req.flash('exito', 'Clase creada correctamente');
             return res.redirect('/administracion');
         } catch (error) {
             console.error('Error al crear la clase:', error);
