@@ -185,7 +185,7 @@ exports.crearClase = async (req, res) => {
     Object.assign(claseData, req.body);
     req.session.claseData = claseData;
 
-    // ✅ Validación de categoriaId antes de crear la clase
+    // ✅ Validación de categoriaId antes de cualquier consulta
     if (!claseData.categoriaId) {
         req.flash('error', 'Debes seleccionar una categoría válida.');
         return res.redirect('/nueva-clase?step=3');
@@ -247,6 +247,7 @@ exports.crearClase = async (req, res) => {
 
     return res.redirect(`/nueva-clase?step=${step + 1}`);
 };
+
 
 //! Controlador para editar clases
 exports.formEditarClase = async (req, res) => {
