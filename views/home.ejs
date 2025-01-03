@@ -135,10 +135,12 @@
             <a href="#" class="close-modal">&times;</a>
             <h1>Iniciar Sesión</h1>
             <% if (mensajes && Object.keys(mensajes).length) { %>
-                <% mensajes[categoria].forEach(alerta => { %>
-                    <div class="alertas">
-                        <p class="alerta <%= categoria %>"><%= alerta %></p>
-                    </div>
+                <% Object.keys(mensajes).forEach(categoria => { %>
+                    <% mensajes[categoria].forEach(alerta => { %>
+                        <div class="alertas">
+                            <p class="alerta <%= categoria %>"><%= alerta %></p>
+                        </div>
+                    <% }) %>
                 <% }) %>
             <% } %>
             <form action="/iniciar-sesion" method="POST" class="default-form">
