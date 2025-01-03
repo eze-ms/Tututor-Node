@@ -248,6 +248,7 @@ exports.crearClase = async (req, res) => {
     return res.redirect(`/nueva-clase?step=${step + 1}`);
 };
 
+
 //! Controlador para editar clases
 exports.formEditarClase = async (req, res) => {
   try {
