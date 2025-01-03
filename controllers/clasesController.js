@@ -185,18 +185,19 @@ exports.crearClase = async (req, res) => {
     Object.assign(claseData, req.body);
     req.session.claseData = claseData;
 
-    if (step === 6) { // Cambiado a step 6 ya que es el último paso antes de guardar
+    // ✅ Validación estricta de categoriaId
+    if (!claseData.categoriaId || isNaN(claseData.categoriaId)) {
+        console.error("DEBUG: categoriaId inválido:", claseData.categoriaId);
+        req.flash('error', 'Debes seleccionar una categoría válida.');
+        return res.redirect('/nueva-clase?step=3');
+    }
+
+    if (step === 6) {
         try {
             const { nombre, descripcion, categoriaId, subcategoriasId, ubicacion, modalidad } = claseData;
 
-            // Generar el slug a partir del nombre
             const slug = slugify(nombre, { lower: true });
-
-            let imagen = null;
-            if (req.file) {
-                imagen = req.file.filename;
-            }
-
+            let imagen = req.file ? req.file.filename : null;
             const descripcionLimpia = stripTags(descripcion);
 
             // Crear la clase
@@ -206,18 +207,32 @@ exports.crearClase = async (req, res) => {
                 descripcion: descripcionLimpia,
                 categoriaId,
                 ubicacion,
-                modalidad, // Incluir modalidad en la creación de la clase
+                modalidad, 
                 imagen,
                 usuarioId: req.user.id
             });
 
-            // Insertar manualmente las relaciones en la tabla intermedia
+            // Validación de subcategorías
             if (subcategoriasId && subcategoriasId.length > 0) {
+                const validIds = await Subcategoria.findAll({
+                    where: { id: subcategoriasId }
+                });
+
+                if (validIds.length !== subcategoriasId.length) {
+                    req.flash('error', 'Algunas subcategorías no existen.');
+                    return res.redirect('/nueva-clase?step=3');
+                }
+
+                // Insertar las relaciones en la tabla intermedia
                 const relaciones = subcategoriasId.map(subcategoriaId => ({
                     claseId: clase.id,
                     subcategoriaId
                 }));
-                await db.models.ClaseSubcategoria.bulkCreate(relaciones); // Insertar las relaciones en la tabla intermedia
+
+                // Corrección en bulkCreate, asegurándonos que no haya datos erróneos
+                if (relaciones.length > 0) {
+                    await db.models.ClaseSubcategoria.bulkCreate(relaciones);
+                }
             }
 
             req.flash('exito', 'Clase creada correctamente');
