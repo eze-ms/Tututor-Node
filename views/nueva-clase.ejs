@@ -146,4 +146,14 @@
 <script src="/js/modal.js"></script>
 <script src="/js/upload.js"></script>
 <script src="/utils/dropdown.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', () => {
+            const categoriaId = document.getElementById('categoria').value;
+            console.log('Valor de categoriaId enviado:', categoriaId);
+        });
+    });
+</script>
 </main>
