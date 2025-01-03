@@ -119,10 +119,6 @@ exports.crearClase = async (req, res) => {
     const step = parseInt(req.query.step) || 1;
     const claseData = req.session.claseData || {};
 
-    // LOG de depuración
-    console.log("DEBUG: Datos recibidos:", req.body);
-    console.log("DEBUG: categoriaId en sesión:", claseData.categoriaId);
-
     // Función para eliminar etiquetas HTML
     const stripTags = (html) => {
         return html.replace(/<\/?[^>]+(>|$)/g, "");
@@ -161,7 +157,7 @@ exports.crearClase = async (req, res) => {
                 .notEmpty().withMessage('La ubicación es obligatoria.')
                 .trim().escape()
         );
-    } else if (step === 5) { 
+    } else if (step === 5) { // Nueva validación para el paso de modalidad
         validaciones.push(
             body('modalidad')
                 .notEmpty().withMessage('Debes seleccionar una modalidad.')
@@ -174,12 +170,11 @@ exports.crearClase = async (req, res) => {
 
     if (!errores.isEmpty()) {
         const mensajesAdvertencia = errores.array().map(error => error.msg);
-        console.log("DEBUG: Errores de validación", mensajesAdvertencia);
 
         return res.render('nueva-clase', {
             nombrePagina: "Crear nueva clase",
             categorias: await Categoria.findAll(),
-            subcategorias: await Subcategoria.findAll({ where: { categoriaId: claseData.categoriaId || null } }),
+            subcategorias: await Subcategoria.findAll({ where: { categoriaId: claseData.categoriaId } }),
             step,
             mensajes: { advertencia: `<ul>${mensajesAdvertencia.join('')}</ul>` },
             claseData
@@ -190,19 +185,18 @@ exports.crearClase = async (req, res) => {
     Object.assign(claseData, req.body);
     req.session.claseData = claseData;
 
-    // ✅ Validación estricta de categoriaId
-    if (!claseData.categoriaId || isNaN(claseData.categoriaId)) {
-        console.error("DEBUG: categoriaId inválido:", claseData.categoriaId);
-        req.flash('error', 'Debes seleccionar una categoría válida.');
-        return res.redirect('/nueva-clase?step=3');
-    }
-
-    if (step === 6) {
+    if (step === 6) { // Cambiado a step 6 ya que es el último paso antes de guardar
         try {
             const { nombre, descripcion, categoriaId, subcategoriasId, ubicacion, modalidad } = claseData;
 
+            // Generar el slug a partir del nombre
             const slug = slugify(nombre, { lower: true });
-            let imagen = req.file ? req.file.filename : null;
+
+            let imagen = null;
+            if (req.file) {
+                imagen = req.file.filename;
+            }
+
             const descripcionLimpia = stripTags(descripcion);
 
             // Crear la clase
@@ -212,27 +206,18 @@ exports.crearClase = async (req, res) => {
                 descripcion: descripcionLimpia,
                 categoriaId,
                 ubicacion,
-                modalidad, 
+                modalidad, // Incluir modalidad en la creación de la clase
                 imagen,
                 usuarioId: req.user.id
             });
 
-            // Validar si los subcategoriaId existen en la base de datos
+            // Insertar manualmente las relaciones en la tabla intermedia
             if (subcategoriasId && subcategoriasId.length > 0) {
-                const validIds = await Subcategoria.findAll({
-                    where: { id: subcategoriasId }
-                });
-
-                if (validIds.length !== subcategoriasId.length) {
-                    req.flash('error', 'Algunas subcategorías no existen.');
-                    return res.redirect('/nueva-clase?step=3');
-                }
-
                 const relaciones = subcategoriasId.map(subcategoriaId => ({
                     claseId: clase.id,
                     subcategoriaId
                 }));
-                await db.models.ClaseSubcategoria.bulkCreate(relaciones);
+                await db.models.ClaseSubcategoria.bulkCreate(relaciones); // Insertar las relaciones en la tabla intermedia
             }
 
             req.flash('exito', 'Clase creada correctamente');

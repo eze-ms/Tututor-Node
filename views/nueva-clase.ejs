@@ -146,4 +146,29 @@
 <script src="/js/modal.js"></script>
 <script src="/js/upload.js"></script>
 <script src="/utils/dropdown.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    if (!form) {
+        console.error('DEBUG: El formulario no se encontró en el DOM.');
+        return;
+    }
+
+    form.addEventListener('submit', (event) => {
+        const step = parseInt(new URLSearchParams(window.location.search).get('step')) || 1;
+        
+        if (step === 3) { // Solo validar categoría en el paso 3
+            const categoriaId = document.getElementById('categoria')?.value;
+            if (!categoriaId) {
+                console.error('DEBUG: No se ha seleccionado una categoría.');
+                event.preventDefault();
+            } else {
+                console.log('DEBUG: Valor de categoriaId enviado:', categoriaId);
+            }
+        }
+    });
+});
+
+</script>
 </main>
