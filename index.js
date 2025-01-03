@@ -30,9 +30,9 @@ require('./models/associations');
 
 
 // Conexión a la Base de Datos y sincronización
-db.sync()
-  .then(() => console.log('DB Conectada correctamente'))
-  .catch((error) => console.log('Error al conectar con la DB:', error));
+db.sync({ alter: true })
+    .then(() => console.log('DB Conectada correctamente'))
+    .catch((error) => console.log('Error al conectar con la DB:', error));
 
 // --------------------------------------
 //! 3. Configuración de la Aplicación Express
