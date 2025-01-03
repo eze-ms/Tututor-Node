@@ -150,10 +150,21 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.querySelector('form');
-        form.addEventListener('submit', () => {
-            const categoriaId = document.getElementById('categoria').value;
-            console.log('Valor de categoriaId enviado:', categoriaId);
+        if (!form) {
+            console.error('DEBUG: El formulario no se encontró en el DOM.');
+            return;
+        }
+
+        form.addEventListener('submit', (event) => {
+            const categoriaId = document.getElementById('categoria')?.value;
+            if (!categoriaId) {
+                console.error('DEBUG: No se ha seleccionado una categoría.');
+                event.preventDefault(); // Evitar que se envíe el formulario sin una categoría válida
+            } else {
+                console.log('DEBUG: Valor de categoriaId enviado:', categoriaId);
+            }
         });
     });
 </script>
+
 </main>
