@@ -68,68 +68,59 @@ exports.formNuevaClase = async (req, res) => {
     }
 
     try {
-        const categorias = await Categoria.findAll();
+        const categorias = await Categoria.findAll(); 
         console.log('DEBUG: Categorías cargadas:', categorias);
-    
+
+
+        let nombrePagina;
         let subcategorias = [];
+
         if (claseData.categoriaId) {
             subcategorias = await Subcategoria.findAll({
                 where: { categoriaId: claseData.categoriaId }
             });
             console.log('DEBUG: Subcategorías cargadas:', subcategorias);
         }
+
+        switch (step) {
+            case 1:
+                nombrePagina = "Pon un título a la clase";
+                break;
+            case 2:
+                nombrePagina = "Descripción de la clase";
+                break;
+            case 3:
+                nombrePagina = "Elige una categoría y subcategoría";
+                if (claseData.categoriaId) {
+                    subcategorias = await Subcategoria.findAll({
+                        where: { categoriaId: claseData.categoriaId }
+                    });
+                }
+                break;
+            case 4:
+                nombrePagina = "Ubicación";
+                break;
+            case 5:
+                nombrePagina = "Selecciona la Modalidad";
+                break;
+            case 6:
+                nombrePagina = "Imagen para la clase";
+                break;
+            default:
+                return res.redirect('/nueva-clase?step=1');
+        }
+
+        res.render('nueva-clase', {
+            nombrePagina,
+            categorias,
+            subcategorias,
+            step,
+            claseData // Pasa los datos acumulados a la vista
+        });
     } catch (error) {
-        console.error('Error al cargar datos:', error);
+        console.error('Error al cargar la página de nueva clase:', error);
+        res.status(500).send('Error al cargar la página de nueva clase');
     }
-    
-
-    // try {
-    //     const categorias = await Categoria.findAll(); 
-    //     console.log('DEBUG: Categorías cargadas:', categorias);
-
-
-    //     let nombrePagina;
-    //     let subcategorias = [];
-
-    //     switch (step) {
-    //         case 1:
-    //             nombrePagina = "Pon un título a la clase";
-    //             break;
-    //         case 2:
-    //             nombrePagina = "Descripción de la clase";
-    //             break;
-    //         case 3:
-    //             nombrePagina = "Elige una categoría y subcategoría";
-    //             if (claseData.categoriaId) {
-    //                 subcategorias = await Subcategoria.findAll({
-    //                     where: { categoriaId: claseData.categoriaId }
-    //                 });
-    //             }
-    //             break;
-    //         case 4:
-    //             nombrePagina = "Ubicación";
-    //             break;
-    //         case 5:
-    //             nombrePagina = "Selecciona la Modalidad";
-    //             break;
-    //         case 6:
-    //             nombrePagina = "Imagen para la clase";
-    //             break;
-    //         default:
-    //             return res.redirect('/nueva-clase?step=1');
-    //     }
-
-    //     res.render('nueva-clase', {
-    //         nombrePagina,
-    //         categorias,
-    //         subcategorias,
-    //         step,
-    //         claseData // Pasa los datos acumulados a la vista
-    //     });
-    // } catch (error) {
-    //     console.error('Error al cargar la página de nueva clase:', error);
-    //     res.status(500).send('Error al cargar la página de nueva clase');
-    // }
 };
 
 //! Controlador para crear la clase con validación, sanitización y almacenamiento en la BBDD
