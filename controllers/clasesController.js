@@ -1,10 +1,10 @@
 const db = require('../config/db');
-const Sequelize = require('sequelize'); // Importar Sequelize
-const ClaseSubcategoria = require('../models/ClaseSubcategoria');  // Importar la tabla intermedia
+const Sequelize = require('sequelize'); 
+const ClaseSubcategoria = require('../models/ClaseSubcategoria');  
 const Categoria = require('../models/Categorias');
 const Subcategoria = require('../models/Subcategorias');
 const Clase = require('../models/Clases');
-const Usuarios = require('../models/Usuarios'); // Importar el modelo Usuario
+const Usuarios = require('../models/Usuarios'); 
 const { body, validationResult } = require('express-validator');
 const multer = require('multer');
 const shortid = require('shortid');
@@ -21,15 +21,15 @@ const configuracionMulter = {
         },
         filename: (req, file, next) => {
             const extension = file.mimetype.split('/')[1]
-            next(null, `${shortid.generate()}.${extension}`) // Genera un nombre único para cada archivo
+            next(null, `${shortid.generate()}.${extension}`) 
         }
     }),
-    limits: { fileSize: 1000000 }, // Opcional: Limita el tamaño del archivo, por ejemplo, 1MB
+    limits: { fileSize: 1000000 }, 
     fileFilter: (req, file, next) => {
-        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']; // Solo imágenes JPEG y PNG
+        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']; 
 
         if (validExtensions.includes(file.mimetype)) {
-            next(null, true); // Permitir el archivo
+            next(null, true); 
         } else {
             // Bloquear archivo no permitido con mensaje de advertencia
             req.flash('advertencia', 'Formato no válido. Solo se permiten imágenes JPEG, PNG o WEBP.');
@@ -59,8 +59,8 @@ exports.subirImagen = (req, res, next) => {
 
 //! Controlador para Mostrar el Formulario de Crear Clase
 exports.formNuevaClase = async (req, res) => {
-    let step = parseInt(req.query.step) || 1; // Control de pasos
-    const claseData = req.session.claseData || {}; // Recupera los datos almacenados temporalmente
+    let step = parseInt(req.query.step) || 1; 
+    const claseData = req.session.claseData || {}; 
 
     // Si no hay `step`, redirigir a `step=1`
     if (!req.query.step) {
@@ -68,50 +68,68 @@ exports.formNuevaClase = async (req, res) => {
     }
 
     try {
-        const categorias = await Categoria.findAll(); // Obtener las categorías para los pasos relevantes
-
-        let nombrePagina;
+        const categorias = await Categoria.findAll();
+        console.log('DEBUG: Categorías cargadas:', categorias);
+    
         let subcategorias = [];
-
-        switch (step) {
-            case 1:
-                nombrePagina = "Pon un título a la clase";
-                break;
-            case 2:
-                nombrePagina = "Descripción de la clase";
-                break;
-            case 3:
-                nombrePagina = "Elige una categoría y subcategoría";
-                if (claseData.categoriaId) {
-                    subcategorias = await Subcategoria.findAll({
-                        where: { categoriaId: claseData.categoriaId }
-                    });
-                }
-                break;
-            case 4:
-                nombrePagina = "Ubicación";
-                break;
-            case 5:
-                nombrePagina = "Selecciona la Modalidad";
-                break;
-            case 6:
-                nombrePagina = "Imagen para la clase";
-                break;
-            default:
-                return res.redirect('/nueva-clase?step=1');
+        if (claseData.categoriaId) {
+            subcategorias = await Subcategoria.findAll({
+                where: { categoriaId: claseData.categoriaId }
+            });
+            console.log('DEBUG: Subcategorías cargadas:', subcategorias);
         }
-
-        res.render('nueva-clase', {
-            nombrePagina,
-            categorias,
-            subcategorias,
-            step,
-            claseData // Pasa los datos acumulados a la vista
-        });
     } catch (error) {
-        console.error('Error al cargar la página de nueva clase:', error);
-        res.status(500).send('Error al cargar la página de nueva clase');
+        console.error('Error al cargar datos:', error);
     }
+    
+
+    // try {
+    //     const categorias = await Categoria.findAll(); 
+    //     console.log('DEBUG: Categorías cargadas:', categorias);
+
+
+    //     let nombrePagina;
+    //     let subcategorias = [];
+
+    //     switch (step) {
+    //         case 1:
+    //             nombrePagina = "Pon un título a la clase";
+    //             break;
+    //         case 2:
+    //             nombrePagina = "Descripción de la clase";
+    //             break;
+    //         case 3:
+    //             nombrePagina = "Elige una categoría y subcategoría";
+    //             if (claseData.categoriaId) {
+    //                 subcategorias = await Subcategoria.findAll({
+    //                     where: { categoriaId: claseData.categoriaId }
+    //                 });
+    //             }
+    //             break;
+    //         case 4:
+    //             nombrePagina = "Ubicación";
+    //             break;
+    //         case 5:
+    //             nombrePagina = "Selecciona la Modalidad";
+    //             break;
+    //         case 6:
+    //             nombrePagina = "Imagen para la clase";
+    //             break;
+    //         default:
+    //             return res.redirect('/nueva-clase?step=1');
+    //     }
+
+    //     res.render('nueva-clase', {
+    //         nombrePagina,
+    //         categorias,
+    //         subcategorias,
+    //         step,
+    //         claseData // Pasa los datos acumulados a la vista
+    //     });
+    // } catch (error) {
+    //     console.error('Error al cargar la página de nueva clase:', error);
+    //     res.status(500).send('Error al cargar la página de nueva clase');
+    // }
 };
 
 //! Controlador para crear la clase con validación, sanitización y almacenamiento en la BBDD
@@ -157,7 +175,7 @@ exports.crearClase = async (req, res) => {
                 .notEmpty().withMessage('La ubicación es obligatoria.')
                 .trim().escape()
         );
-    } else if (step === 5) { 
+    } else if (step === 5) { // Nueva validación para el paso de modalidad
         validaciones.push(
             body('modalidad')
                 .notEmpty().withMessage('Debes seleccionar una modalidad.')
@@ -170,7 +188,6 @@ exports.crearClase = async (req, res) => {
 
     if (!errores.isEmpty()) {
         const mensajesAdvertencia = errores.array().map(error => error.msg);
-        console.log("DEBUG: Errores de validación", mensajesAdvertencia);
 
         return res.render('nueva-clase', {
             nombrePagina: "Crear nueva clase",
@@ -186,19 +203,18 @@ exports.crearClase = async (req, res) => {
     Object.assign(claseData, req.body);
     req.session.claseData = claseData;
 
-    // ✅ Validación estricta de categoriaId
-    if (!claseData.categoriaId || isNaN(claseData.categoriaId)) {
-        console.error("DEBUG: categoriaId inválido:", claseData.categoriaId);
-        req.flash('error', 'Debes seleccionar una categoría válida.');
-        return res.redirect('/nueva-clase?step=3');
-    }
-
-    if (step === 6) {
+    if (step === 6) { // Cambiado a step 6 ya que es el último paso antes de guardar
         try {
             const { nombre, descripcion, categoriaId, subcategoriasId, ubicacion, modalidad } = claseData;
 
+            // Generar el slug a partir del nombre
             const slug = slugify(nombre, { lower: true });
-            let imagen = req.file ? req.file.filename : null;
+
+            let imagen = null;
+            if (req.file) {
+                imagen = req.file.filename;
+            }
+
             const descripcionLimpia = stripTags(descripcion);
 
             // Crear la clase
@@ -208,32 +224,18 @@ exports.crearClase = async (req, res) => {
                 descripcion: descripcionLimpia,
                 categoriaId,
                 ubicacion,
-                modalidad, 
+                modalidad, // Incluir modalidad en la creación de la clase
                 imagen,
                 usuarioId: req.user.id
             });
 
-            // Validación de subcategorías
+            // Insertar manualmente las relaciones en la tabla intermedia
             if (subcategoriasId && subcategoriasId.length > 0) {
-                const validIds = await Subcategoria.findAll({
-                    where: { id: subcategoriasId }
-                });
-
-                if (validIds.length !== subcategoriasId.length) {
-                    req.flash('error', 'Algunas subcategorías no existen.');
-                    return res.redirect('/nueva-clase?step=3');
-                }
-
-                // Insertar las relaciones en la tabla intermedia
                 const relaciones = subcategoriasId.map(subcategoriaId => ({
                     claseId: clase.id,
                     subcategoriaId
                 }));
-
-                // Corrección en bulkCreate, asegurándonos que no haya datos erróneos
-                if (relaciones.length > 0) {
-                    await db.models.ClaseSubcategoria.bulkCreate(relaciones);
-                }
+                await db.models.ClaseSubcategoria.bulkCreate(relaciones); // Insertar las relaciones en la tabla intermedia
             }
 
             req.flash('exito', 'Clase creada correctamente');
@@ -247,7 +249,6 @@ exports.crearClase = async (req, res) => {
 
     return res.redirect(`/nueva-clase?step=${step + 1}`);
 };
-
 
 //! Controlador para editar clases
 exports.formEditarClase = async (req, res) => {

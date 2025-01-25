@@ -1,0 +1,137 @@
+Last login: Sat Jan 25 19:56:29 on ttys000
+ezequielmacchi@MacBook-Pro-de-Ezequiel-2 ~ % tree /Users/ezequielmacchi_1_2/Desktop/NODE/meeti-Node-js-PROD -I 'node_modules'
+
+/Users/ezequielmacchi_1_2/Desktop/NODE/meeti-Node-js-PROD
+├── README.md
+├── config
+│   ├── db.js
+│   ├── emails.js
+│   └── passport.js
+├── controllers
+│   ├── adminController.js
+│   ├── authController.js
+│   ├── clasesController.js
+│   ├── frontend
+│   │   ├── busquedaControllerFE.js
+│   │   ├── claseControllerFE.js
+│   │   ├── comentariosControllerFE.js
+│   │   └── usuariosControllerFE.js
+│   ├── homeController.js
+│   └── usuariosController.js
+├── estructura.txt
+├── handler
+│   └── emails.js
+├── index.js
+├── insertarDatos.js
+├── models
+│   ├── Categorias.js
+│   ├── ClaseSubcategoria.js
+│   ├── Clases.js
+│   ├── Comentarios.js
+│   ├── Subcategorias.js
+│   ├── Usuarios.js
+│   └── associations.js
+├── package-lock.json
+├── package.json
+├── public
+│   ├── css
+│   │   └── app.css
+│   ├── dist
+│   │   └── bundle.js
+│   ├── img
+│   │   ├── adress.svg
+│   │   ├── alumno.webp
+│   │   ├── avatar.jpg
+│   │   ├── bombilla.png
+│   │   ├── categoria_1.jpg
+│   │   ├── categoria_11.jpg
+│   │   ├── categoria_2.jpg
+│   │   ├── categoria_5.jpg
+│   │   ├── categoria_6.jpg
+│   │   ├── categoria_7.jpg
+│   │   ├── cooking.webp
+│   │   ├── emotional-training.webp
+│   │   ├── euro.png
+│   │   ├── hablar.png
+│   │   ├── headband.webp
+│   │   ├── hero.jpg
+│   │   ├── icono-hora.svg
+│   │   ├── icono-ubicacion.svg
+│   │   ├── iconos
+│   │   │   ├── academico.svg
+│   │   │   ├── ajedrez.svg
+│   │   │   ├── baile.png
+│   │   │   ├── camera.svg
+│   │   │   ├── canto.svg
+│   │   │   ├── ciencias.svg
+│   │   │   ├── codigo.png
+│   │   │   ├── en.svg
+│   │   │   ├── entrenamiento.svg
+│   │   │   ├── futbol.svg
+│   │   │   ├── guitarra.svg
+│   │   │   ├── mat.svg
+│   │   │   ├── paddle.svg
+│   │   │   └── yoga.png
+│   │   ├── img-placeholder.webp
+│   │   ├── logo-2.png
+│   │   ├── logo.png
+│   │   ├── logo.webp
+│   │   ├── maestro.webp
+│   │   ├── mapa.png
+│   │   ├── photo-profil.d0ab3eb0.svg
+│   │   ├── photo.svg
+│   │   └── task.webp
+│   ├── js
+│   │   ├── app.js
+│   │   ├── date.js
+│   │   ├── eliminarComentario.js
+│   │   ├── interes.js
+│   │   ├── modal.js
+│   │   ├── select-rol.js
+│   │   ├── trix.js
+│   │   └── upload.js
+│   └── uploads
+│       ├── grupos
+│       └── usuarios
+│           └── Z6P2kPdvD.webp
+├── routes
+│   ├── api
+│   │   └── subcategorias.js
+│   └── index.js
+├── test-db.js
+├── utils
+│   ├── carousel.js
+│   ├── date.js
+│   ├── dropdown.js
+│   ├── droptwo.js
+│   ├── menu-burguer.js
+│   ├── modal.js
+│   └── showPassword.js
+├── variables.env
+├── views
+│   ├── administracion.ejs
+│   ├── busqueda.ejs
+│   ├── cambiar-password.ejs
+│   ├── crear-cuenta.ejs
+│   ├── editar-clase.ejs
+│   ├── editar-perfil.ejs
+│   ├── emails
+│   │   └── confirmar-cuenta.ejs
+│   ├── home.ejs
+│   ├── imagen-clase.ejs
+│   ├── iniciar-sesion.ejs
+│   ├── interesados-clase.ejs
+│   ├── layout.ejs
+│   ├── mostrar-clase.ejs
+│   ├── mostrar-perfil.ejs
+│   ├── nueva-clase.ejs
+│   ├── panel-alumno.ejs
+│   ├── partials
+│   │   ├── nav-autenticado.ejs
+│   │   └── nav-no-autenticado.ejs
+│   ├── rol-usuario.ejs
+│   └── subcategoria.ejs
+└── webpack.config.js
+
+21 directories, 110 files
+ezequielmacchi@MacBook-Pro-de-Ezequiel-2 ~ % 
