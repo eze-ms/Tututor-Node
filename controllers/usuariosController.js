@@ -1,13 +1,22 @@
-const { body, validationResult } = require('express-validator')
-const Usuarios = require('../models/Usuarios')
-const enviarEmail = require('../handler/emails')
-const multer = require('multer')
-const shortid = require('shortid')
-const fs = require('fs')
+const { body, validationResult } = require('express-validator');
+const Usuarios = require('../models/Usuarios');
+const enviarEmail = require('../handler/emails');
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+const shortid = require('shortid');
 const path = require('path'); //* Para manejar rutas correctamente
+const Clase = require('../models/Clases');
+const homeController = require('./homeController');
 
 
-const homeController = require('./homeController'); // Asegúrate de importar homeController
+// Configurar S3
+const s3 = new AWS.S3({
+    accessKeyId: process.env.REDACTED,
+    secretAccessKey: process.env.REDACTED,
+    region: process.env.AWS_REGION,
+});
+
 
 //! Mostrar el formulario de crear cuenta
 exports.formCrearCuenta = async (req, res) => {
@@ -138,13 +147,13 @@ exports.formEditarPerfil = async (req, res) => {
         req.flash('error', 'Hubo un error al cargar el perfil');
         return res.redirect('/administracion');
     }
-}
+};
 
 //! Controlador para manejar la edición del perfil y la subida de imágenes
 exports.editarPerfil = async (req, res) => {
     try {
         const usuario = await Usuarios.findByPk(req.user.id);
-        
+
         // Validaciones del formulario
         const validaciones = [
             body('nombre').notEmpty().withMessage('El nombre es obligatorio.').trim().escape(),
@@ -154,20 +163,20 @@ exports.editarPerfil = async (req, res) => {
             body('about').optional().trim(),
             body('tarifa').optional().trim().escape(),
             body('ubicacion').optional().trim().escape(),
-            body('niveles').optional().trim().escape() // Validar niveles seleccionados
+            body('niveles').optional().trim().escape(), // Validar niveles seleccionados
         ];
 
-        await Promise.all(validaciones.map(validation => validation.run(req)));
+        await Promise.all(validaciones.map((validation) => validation.run(req)));
 
         const errores = validationResult(req);
-        
+
         if (!errores.isEmpty()) {
-            const advertencias = errores.array().map(error => `<li>${error.msg}</li>`);
-            
+            const advertencias = errores.array().map((error) => `<li>${error.msg}</li>`);
+
             return res.render('editar-perfil', {
                 nombrePagina: 'Editar perfil',
                 usuario,
-                mensajes: { advertencia: `<ul>${advertencias.join('')}</ul>` }
+                mensajes: { advertencia: `<ul>${advertencias.join('')}</ul>` },
             });
         }
 
@@ -176,9 +185,10 @@ exports.editarPerfil = async (req, res) => {
 
         // Convertir los niveles seleccionados en una cadena separada por comas
         usuario.niveles = niveles ? niveles.join(',') : null;
-        
+
+        // Si hay una imagen nueva, guardar la URL pública de S3
         if (req.file) {
-            usuario.imagen = req.file.filename; // Guardar la imagen si se subió una nueva
+            usuario.imagen = req.file.location; // URL pública de S3
         }
 
         // Asignar los datos al usuario
@@ -187,7 +197,7 @@ exports.editarPerfil = async (req, res) => {
         usuario.fecha_nacimiento = fecha_nacimiento;
         usuario.email = email;
         usuario.about = about;
-        usuario.tarifa = tarifa; 
+        usuario.tarifa = tarifa;
         usuario.ubicacion = ubicacion;
 
         // Guardar cambios
@@ -202,48 +212,49 @@ exports.editarPerfil = async (req, res) => {
 };
 
 //! Configuración Multer
-const configuracionMulter = {
-    storage: multer.diskStorage({
-        destination: (req, file, next) => {
-            next(null, __dirname + '/../public/uploads/usuarios')
+const configuracionMulter = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_S3_BUCKET_NAME,
+        acl: 'public-read',
+        metadata: (req, file, cb) => {
+            cb(null, { fieldName: file.fieldname });
         },
-        filename: (req, file, next) => {
+        key: (req, file, cb) => {
             const extension = file.mimetype.split('/')[1];
-            next(null, `${shortid.generate()}.${extension}`); // Genera un nombre único para cada archivo
-        }
+            cb(null, `uploads/usuarios/${shortid.generate()}.${extension}`);
+        },
     }),
     limits: { fileSize: 1000000 }, // Opcional: Limita el tamaño del archivo, por ejemplo, 1MB
-    fileFilter: (req, file, next) => {
-        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']; // Ahora incluye archivos webp
+    fileFilter: (req, file, cb) => {
+        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
         if (validExtensions.includes(file.mimetype)) {
-            next(null, true); // Permitir el archivo
+            cb(null, true); // Permitir el archivo
         } else {
-            // Bloquear archivo no permitido con mensaje de advertencia
             req.flash('advertencia', 'Formato no válido. Solo se permiten imágenes JPEG, PNG o WEBP.');
-            return next(null, false); // Rechazar el archivo
+            cb(new Error('Formato no válido'));
         }
-    }
-}
-const upload = multer(configuracionMulter).single('imagen');
+    },
+}).single('imagen');
 
 //! Middleware para subir imágenes
 exports.subirImagen = (req, res, next) => {
-    upload(req, res, function (error) {
+    configuracionMulter(req, res, function (error) {
         if (error) {
             if (error instanceof multer.MulterError) {
                 if (error.code === 'LIMIT_FILE_SIZE') {
                     req.flash('advertencia', 'El archivo es demasiado grande'); // Mensaje si el archivo es demasiado grande
                 }
             } else {
-                req.flash('advertencia', error.message) // Otro tipo de error de multer
+                req.flash('advertencia', error.message); // Otro tipo de error de multer
             }
             // Redirigir a la misma página con el mensaje de advertencia
-            return res.redirect('back') 
+            return res.redirect('back'); 
         }
-        next() // Si no hay errores, continuar al siguiente middleware
-    })
-}
+        next(); // Si no hay errores, continuar al siguiente middleware
+    });
+};
 
 //! Controlador para editar una imagen de la clase
 exports.formEditarImagen = async (req, res) => {
@@ -267,54 +278,60 @@ exports.formEditarImagen = async (req, res) => {
         req.flash('error', 'Hubo un error al cargar la imagen')
         res.redirect('/administracion')
     }
-}
+};
 
 //! Controlador para modificar la imagen en la bbdd y eliminar la anterior
 exports.editarImagen = async (req, res, next) => {
     try {
         // Verificar si la clase existe y pertenece al usuario
-        const clase = await Clase.findOne({ where: { id: req.params.claseId, usuarioId: req.user.id } })
+        const clase = await Clase.findOne({ where: { id: req.params.claseId, usuarioId: req.user.id } });
 
         // Si la clase no es válida o no existe
         if (!clase) {
-            req.flash('aviso', 'Operación no válida')
-            res.redirect('/iniciar-sesion')
-            return next()
+            req.flash('aviso', 'Operación no válida');
+            res.redirect('/iniciar-sesion');
+            return next();
         }
-        
-         // Si hay una imagen anterior y nueva, eliminar la anterior
-        if (req.file && clase.imagen) {
-            const imagenAnteriorPath = path.join(__dirname, `../public/uploads/usuarios/${clase.imagen}`);
 
-            //* Eliminar la imagen anterior de manera asíncrona usando Promesas
-            fs.promises.unlink(imagenAnteriorPath)
+        // Si hay una imagen anterior y nueva, eliminar la anterior de S3
+        if (req.file && clase.imagen) {
+            const bucket = process.env.AWS_S3_BUCKET_NAME;
+            const s3 = new AWS.S3();
+            const key = clase.imagen.split(`${bucket}/`)[1]; // Obtener el nombre del archivo desde la URL pública
+
+            await s3
+                .deleteObject({
+                    Bucket: bucket,
+                    Key: key,
+                })
+                .promise()
                 .catch((error) => {
-                    console.error('Error al eliminar la imagen anterior:', error);
+                    console.error('Error al eliminar la imagen anterior en S3:', error);
                 });
         }
 
         // Asignar la nueva imagen si existe
         if (req.file) {
-            clase.imagen = req.file.filename
+            clase.imagen = req.file.location; // URL pública de S3
         }
 
         // Guardar los cambios en la BBDD
         await clase.save();
-        req.flash('exito', '¡Cambios guardados correctamente!')
-        res.redirect('/administracion')
-
+        req.flash('exito', '¡Cambios guardados correctamente!');
+        res.redirect('/administracion');
     } catch (error) {
+        console.error('Error al editar la imagen:', error);
         req.flash('error', 'Hubo un error al intentar modificar la imagen');
         res.redirect('/administracion');
     }
-}
+};
 
 //! Controlador para mostrar el formulario para cambiar password
 exports.formCambiarPassword = async (req, res) => {
     res.render('cambiar-password', {
         nombrePagina: 'Cambiar la contraseña'
     })
-}
+};
 
 //! Controlador para revisar si el password anterior es correcto y cambiar a nuevo
 exports.cambiarPassword = async (req, res, next) => {
@@ -349,4 +366,4 @@ exports.cambiarPassword = async (req, res, next) => {
         req.flash('error', 'Hubo un error al cambiar la contraseña. Inténtalo nuevamente.')
         res.redirect('/cambiar-password')
     }
-}
+};

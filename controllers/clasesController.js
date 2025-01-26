@@ -6,56 +6,63 @@ const Subcategoria = require('../models/Subcategorias');
 const Clase = require('../models/Clases');
 const Usuarios = require('../models/Usuarios'); 
 const { body, validationResult } = require('express-validator');
+const AWS = require('aws-sdk');
 const multer = require('multer');
+const multerS3 = require('multer-s3');
 const shortid = require('shortid');
-const fs = require('fs');
-const path = require('path');
 const slugify = require('slugify');
 
 
+// Configurar S3
+const s3 = new AWS.S3({
+    accessKeyId: process.env.REDACTED,
+    secretAccessKey: process.env.REDACTED,
+    region: process.env.AWS_REGION,
+});
+
 //! Configuración de Multer para Subida de Imágenes
-const configuracionMulter = {
-    storage: multer.diskStorage({
-        destination: (req, file, next) => {
-            next(null, __dirname + '/../public/uploads/grupos')
+const configuracionMulter = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_S3_BUCKET_NAME,
+        acl: 'public-read', // Permitir acceso público
+        metadata: (req, file, cb) => {
+            cb(null, { fieldName: file.fieldname });
         },
-        filename: (req, file, next) => {
-            const extension = file.mimetype.split('/')[1]
-            next(null, `${shortid.generate()}.${extension}`) 
-        }
+        key: (req, file, cb) => {
+            const extension = file.mimetype.split('/')[1];
+            cb(null, `uploads/grupos/${shortid.generate()}.${extension}`);
+        },
     }),
     limits: { fileSize: 1000000 }, 
-    fileFilter: (req, file, next) => {
+    fileFilter: (req, file, cb) => {
         const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']; 
 
         if (validExtensions.includes(file.mimetype)) {
-            next(null, true); 
+            cb(null, true); 
         } else {
-            // Bloquear archivo no permitido con mensaje de advertencia
             req.flash('advertencia', 'Formato no válido. Solo se permiten imágenes JPEG, PNG o WEBP.');
-            return next(null, false); // Rechazar el archivo
+            cb(new Error('Formato no válido'));
         }
-    }
-}
-const upload = multer(configuracionMulter).single('imagen')
+    },
+}).single('imagen');
 
 //! Middleware para subir imágenes
 exports.subirImagen = (req, res, next) => {
-    upload(req, res, function (error) {
+    configuracionMulter(req, res, function (error) {
         if (error) {
             if (error instanceof multer.MulterError) {
                 if (error.code === 'LIMIT_FILE_SIZE') {
-                    req.flash('advertencia', 'El archivo es demasiado grande'); // Mensaje si el archivo es demasiado grande
+                    req.flash('advertencia', 'El archivo es demasiado grande');
                 }
             } else {
-                req.flash('advertencia', error.message); // Otro tipo de error de multer
+                req.flash('advertencia', error.message);
             }
-            // Redirigir a la misma página con el mensaje de advertencia
             return res.redirect('back'); 
         }
-        next(); // Si no hay errores, continuar al siguiente middleware
-    })
-}
+        next();
+    });
+};
 
 //! Controlador para Mostrar el Formulario de Crear Clase
 exports.formNuevaClase = async (req, res) => {
@@ -90,7 +97,14 @@ exports.formNuevaClase = async (req, res) => {
                 nombrePagina = "Descripción de la clase";
                 break;
             case 3:
-                nombrePagina = "Elige una categoría y subcategoría";
+                    nombrePagina = "Elige una categoría y subcategoría";
+                    if (!subcategorias.length && claseData.categoriaId) {
+                        subcategorias = await Subcategoria.findAll({
+                            where: { categoriaId: claseData.categoriaId }
+                        });
+                    }
+                    break;
+                                nombrePagina = "Elige una categoría y subcategoría";
                 if (claseData.categoriaId) {
                     subcategorias = await Subcategoria.findAll({
                         where: { categoriaId: claseData.categoriaId }
@@ -197,17 +211,17 @@ exports.crearClase = async (req, res) => {
     if (step === 6) { // Cambiado a step 6 ya que es el último paso antes de guardar
         try {
             const { nombre, descripcion, categoriaId, subcategoriasId, ubicacion, modalidad } = claseData;
-
+    
             // Generar el slug a partir del nombre
             const slug = slugify(nombre, { lower: true });
-
+    
             let imagen = null;
             if (req.file) {
-                imagen = req.file.filename;
+                imagen = req.file.location; // URL pública de S3
             }
-
+    
             const descripcionLimpia = stripTags(descripcion);
-
+    
             // Crear la clase
             const clase = await Clase.create({
                 nombre,
@@ -219,7 +233,7 @@ exports.crearClase = async (req, res) => {
                 imagen,
                 usuarioId: req.user.id
             });
-
+    
             // Insertar manualmente las relaciones en la tabla intermedia
             if (subcategoriasId && subcategoriasId.length > 0) {
                 const relaciones = subcategoriasId.map(subcategoriaId => ({
@@ -228,7 +242,7 @@ exports.crearClase = async (req, res) => {
                 }));
                 await db.models.ClaseSubcategoria.bulkCreate(relaciones); // Insertar las relaciones en la tabla intermedia
             }
-
+    
             req.flash('exito', 'Clase creada correctamente');
             return res.redirect('/administracion');
         } catch (error) {
@@ -237,6 +251,7 @@ exports.crearClase = async (req, res) => {
             return res.redirect('/nueva-clase?step=6');
         }
     }
+    
 
     return res.redirect(`/nueva-clase?step=${step + 1}`);
 };
@@ -271,13 +286,14 @@ exports.formEditarClase = async (req, res) => {
 
     // Pasar la variable `subcategorias` a la vista
     res.render('editar-clase', {
-      nombrePagina: `Editar clase: ${clase.nombre}`,
-      clase,
-      categorias,
-      subcategorias,  // Pasar subcategorias a la vista
-      subcategoriasSeleccionadas: clase.subcategorias.map(sub => sub.id),
-      ubicacion: clase.ubicacion || ''
-    })
+        nombrePagina: `Editar clase: ${clase.nombre}`,
+        clase,
+        categorias,
+        subcategorias,
+        subcategoriasSeleccionadas,
+        ubicacion: clase.ubicacion || ''
+    });
+    
   } catch (error) {
     console.error('Error al cargar la clase para edición:', error)
     req.flash('error', 'Hubo un error al cargar la clase para edición')
@@ -352,42 +368,47 @@ exports.formEditarImagen = async (req, res) => {
 exports.editarImagen = async (req, res, next) => {
     try {
         // Verificar si la clase existe y pertenece al usuario
-        const clase = await Clase.findOne({ where: { id: req.params.claseId, usuarioId: req.user.id } })
+        const clase = await Clase.findOne({ where: { id: req.params.claseId, usuarioId: req.user.id } });
 
         // Si la clase no es válida o no existe
         if (!clase) {
-            req.flash('aviso', 'Operación no válida')
-            res.redirect('/iniciar-sesion')
-            return next()
+            req.flash('aviso', 'Operación no válida');
+            res.redirect('/iniciar-sesion');
+            return next();
         }
-        
-         // Si hay una imagen anterior y nueva, eliminar la anterior
-        if (req.file && clase.imagen) {
-            const imagenAnteriorPath = path.join(__dirname, `../public/uploads/grupos/${clase.imagen}`);
 
-            //* Eliminar la imagen anterior de manera asíncrona usando Promesas
-            fs.promises.unlink(imagenAnteriorPath)
+        // Si hay una imagen anterior y nueva, eliminar la anterior de S3
+        if (req.file && clase.imagen) {
+            const bucket = process.env.AWS_S3_BUCKET_NAME;
+            const s3 = new AWS.S3();
+            const key = clase.imagen.split(`${bucket}/`)[1]; // Obtener el nombre del archivo desde la URL
+
+            await s3
+                .deleteObject({
+                    Bucket: bucket,
+                    Key: key,
+                })
+                .promise()
                 .catch((error) => {
-                    console.error('Error al eliminar la imagen anterior:', error);
+                    console.error('Error al eliminar la imagen anterior en S3:', error);
                 });
         }
 
         // Asignar la nueva imagen si existe
         if (req.file) {
-            clase.imagen = req.file.filename
+            clase.imagen = req.file.location; // URL pública de S3
         }
 
         // Guardar los cambios en la BBDD
         await clase.save();
-        req.flash('exito', '¡Cambios guardados correctamente!')
-        res.redirect('/administracion')
-
+        req.flash('exito', '¡Cambios guardados correctamente!');
+        res.redirect('/administracion');
     } catch (error) {
         console.error('Error al editar la imagen:', error);
         req.flash('error', 'Hubo un error al intentar modificar la imagen');
         res.redirect('/administracion');
     }
-}
+};
 
 //! Controlador para eliminar la clase o el interés del alumno
 exports.eliminarClase = async (req, res) => {
@@ -417,10 +438,19 @@ exports.eliminarClase = async (req, res) => {
             // Eliminar las relaciones en la tabla intermedia
             await ClaseSubcategoria.destroy({ where: { claseId: clase.id } });
 
-            // Si la clase tiene una imagen, eliminarla del servidor
+            // Si la clase tiene una imagen, eliminarla de S3
             if (clase.imagen) {
-                const imagenPath = path.join(__dirname, `../public/uploads/grupos/${clase.imagen}`);
-                await fs.promises.unlink(imagenPath).catch(error => console.error('Error al eliminar la imagen:', error));
+                const bucket = process.env.AWS_S3_BUCKET_NAME;
+                const s3 = new AWS.S3();
+                const key = clase.imagen.split(`${bucket}/`)[1]; // Obtener el nombre del archivo
+
+                await s3
+                    .deleteObject({
+                        Bucket: bucket,
+                        Key: key,
+                    })
+                    .promise()
+                    .catch((error) => console.error('Error al eliminar la imagen de S3:', error));
             }
 
             // Eliminar la clase
@@ -437,7 +467,6 @@ exports.eliminarClase = async (req, res) => {
 
         // Redirigir al panel correspondiente, según el rol del usuario
         res.redirect(req.user.rol === 'profesor' ? '/administracion' : '/panel-alumno');
-
     } catch (error) {
         console.error('Error al eliminar la clase:', error);
         req.flash('error', 'Hubo un error al eliminar la clase');
