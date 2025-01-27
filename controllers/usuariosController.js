@@ -1,23 +1,24 @@
 const { body, validationResult } = require('express-validator');
 const Usuarios = require('../models/Usuarios');
 const enviarEmail = require('../handler/emails');
-const AWS = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const shortid = require('shortid');
-const path = require('path'); //* Para manejar rutas correctamente
 const Clase = require('../models/Clases');
 const homeController = require('./homeController');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
 
 // Configurar S3
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,  
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, 
-    region: process.env.AWS_REGION,  
+const { S3Client } = require('@aws-sdk/client-s3');
+
+const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
 });
-
-
 
 //! Mostrar el formulario de crear cuenta
 exports.formCrearCuenta = async (req, res) => {
@@ -297,18 +298,16 @@ exports.editarImagen = async (req, res, next) => {
         // Si hay una imagen anterior y nueva, eliminar la anterior de S3
         if (req.file && clase.imagen) {
             const bucket = process.env.AWS_S3_BUCKET_NAME;
-            const s3 = new AWS.S3();
-            const key = clase.imagen.split(`${bucket}/`)[1]; // Obtener el nombre del archivo desde la URL pública
+            const key = clase.imagen.split(`${bucket}/`)[1]; // Obtener el nombre del archivo desde la URL
 
-            await s3
-                .deleteObject({
+            try {
+                await s3.send(new DeleteObjectCommand({
                     Bucket: bucket,
                     Key: key,
-                })
-                .promise()
-                .catch((error) => {
-                    console.error('Error al eliminar la imagen anterior en S3:', error);
-                });
+                }));
+            } catch (error) {
+                console.error('Error al eliminar la imagen anterior en S3:', error);
+            }
         }
 
         // Asignar la nueva imagen si existe
