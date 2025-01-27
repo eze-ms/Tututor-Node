@@ -26,7 +26,7 @@
             <h3>Tu Perfil</h3>
             <div class="perfil-infos-alumno">
                 <div class="avatar-wrapper">
-                    <img src="<%= usuario.imagen ? `/uploads/usuarios/${usuario.imagen}` : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
+                    <img src="<%= usuario.imagen ? usuario.imagen : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
                     <span class="icon-camera-wrappe-alumno">
                         <a href="/editar-perfil" class="box-image">
                             <i class="fa-solid fa-camera"></i>

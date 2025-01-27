@@ -82,7 +82,8 @@
                             <img src="/img/photo.svg" alt="camera picture">
                         </div>
                         <div class="avatar-wrapper">
-                            <img src="<%= usuario.imagen ? `/uploads/usuarios/${usuario.imagen}` : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
+                            <img src="<%= usuario.imagen ? usuario.imagen : '/img/avatar.jpg' %>" alt="profile picture" class="avatar" id="avatarPreview">
+
                             <span class="icon-camera-wrapper">
                                 <i class="fa-solid fa-camera"></i>
                             </span>

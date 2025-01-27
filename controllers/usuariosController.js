@@ -60,6 +60,8 @@ exports.crearNuevaCuenta = async (req, res) => {
     }
 
     try {
+        console.log('Datos recibidos para crear usuario:', usuario);
+
         await Usuarios.create(usuario);
 
         const url = `http://${req.headers.host}/confirmar-cuenta/${usuario.email}`;
@@ -73,6 +75,8 @@ exports.crearNuevaCuenta = async (req, res) => {
         req.flash('exito', 'Hemos enviado un email, confirma tu cuenta');
         res.redirect('/iniciar-sesion');
     } catch (error) {
+        console.error('Error al crear usuario:', error); // Log para depurar errores
+
         if (error.errors) {
             const erroresSequelize = error.errors.map(err => err.message);
             listaErrores = [...listaErrores, ...erroresSequelize];
@@ -190,9 +194,11 @@ exports.editarPerfil = async (req, res) => {
 
         // Si hay una imagen nueva, guardar la URL pública de S3
         if (req.file) {
+            console.log('URL de la imagen a guardar:', req.file.location);  // Log para depurar la URL
             usuario.imagen = req.file.location; // URL pública de S3
+            await usuario.save(); // Guardar en la base de datos
         }
-
+        
         // Asignar los datos al usuario
         usuario.nombre = nombre;
         usuario.apellido = apellido;
@@ -218,19 +224,19 @@ const configuracionMulter = multer({
     storage: multerS3({
         s3: s3,
         bucket: process.env.AWS_S3_BUCKET_NAME,
-        acl: 'public-read',
         metadata: (req, file, cb) => {
             cb(null, { fieldName: file.fieldname });
         },
         key: (req, file, cb) => {
             const extension = file.mimetype.split('/')[1];
-            cb(null, `uploads/usuarios/${shortid.generate()}.${extension}`);
+            const fileName = `uploads/usuarios/${shortid.generate()}.${extension}`;
+            console.log('Subiendo archivo a S3 con el nombre:', fileName);
+            cb(null, fileName); // Usar la ruta generada
         },
     }),
-    limits: { fileSize: 1000000 }, // Opcional: Limita el tamaño del archivo, por ejemplo, 1MB
+    limits: { fileSize: 1000000 }, // Limitar tamaño del archivo a 1MB
     fileFilter: (req, file, cb) => {
-        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
+        const validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']; 
         if (validExtensions.includes(file.mimetype)) {
             cb(null, true); // Permitir el archivo
         } else {
@@ -240,21 +246,23 @@ const configuracionMulter = multer({
     },
 }).single('imagen');
 
+
 //! Middleware para subir imágenes
 exports.subirImagen = (req, res, next) => {
     configuracionMulter(req, res, function (error) {
         if (error) {
             if (error instanceof multer.MulterError) {
                 if (error.code === 'LIMIT_FILE_SIZE') {
-                    req.flash('advertencia', 'El archivo es demasiado grande'); // Mensaje si el archivo es demasiado grande
+                    req.flash('advertencia', 'El archivo es demasiado grande');
                 }
             } else {
-                req.flash('advertencia', error.message); // Otro tipo de error de multer
+                req.flash('advertencia', error.message);
             }
-            // Redirigir a la misma página con el mensaje de advertencia
+            console.error('Error en Multer:', error); // Log para depurar errores de Multer
             return res.redirect('back'); 
         }
-        next(); // Si no hay errores, continuar al siguiente middleware
+        console.log('Archivo recibido:', req.file); // Log para verificar el archivo recibido
+        next();
     });
 };
 
@@ -312,7 +320,10 @@ exports.editarImagen = async (req, res, next) => {
 
         // Asignar la nueva imagen si existe
         if (req.file) {
-            clase.imagen = req.file.location; // URL pública de S3
+            console.log('URL de la imagen a guardar:', req.file.location);  // Log para depurar la URL
+            clase.imagen = req.file.location; // URL pública de S3 para la clase
+            await clase.save(); // Guardar en la base de datos
+            console.log('URL de la imagen guardada en la base de datos:', clase.imagen); // Log para verificar la URL guardada
         }
 
         // Guardar los cambios en la BBDD
