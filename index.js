@@ -4,6 +4,15 @@
 
 require('dotenv').config({ path: './variables.env' }) // Configuración de variables de entorno
 
+
+console.log('SECRETO:', process.env.SECRETO);
+console.log('KEY:', process.env.KEY);
+console.log('BD_NOMBRE:', process.env.BD_NOMBRE);
+console.log('BD_USER:', process.env.BD_USER);
+console.log('BD_PASS:', process.env.BD_PASS);
+console.log('BD_HOST:', process.env.BD_HOST);
+console.log('ND_PORT:', process.env.ND_PORT);
+
 const express = require('express')
 const path = require('path')
 const expressEjsLayouts = require('express-ejs-layouts')
