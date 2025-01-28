@@ -9,54 +9,60 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
- exports.mostrarClase = async (req, res) => {
+exports.mostrarClase = async (req, res) => {
   try {
-    const clase = await Clase.findOne({
-      where: { slug: req.params.slug },
-      include: [
-        {
-          model: Usuarios,
-          attributes: ['id', 'nombre', 'about', 'imagen', 'niveles', 'tarifa']
-        },
-        {
-          model: Subcategorias,
-          as: 'subcategorias',
-          attributes: ['nombre']
-        }
-      ]
-    })
+      const clase = await Clase.findOne({
+          where: { slug: req.params.slug },
+          include: [
+              {
+                  model: Usuarios,
+                  attributes: ['id', 'nombre', 'about', 'imagen', 'niveles', 'tarifa']
+              },
+              {
+                  model: Subcategorias,
+                  as: 'subcategorias',
+                  attributes: ['nombre']
+              }
+          ]
+      });
 
-    if (!clase) {
-      return res.redirect('/'); // Si no se encuentra la clase, redirigir al home
-    }
+      if (!clase) {
+          return res.redirect('/'); // Si no se encuentra la clase, redirigir al home
+      }
 
-    const comentarios = await Comentarios.findAll({
-      where: { claseId: clase.id },
-      include: [{ model: Usuarios, attributes: ['id', 'nombre', 'imagen'] }]
-    })
+      const comentarios = await Comentarios.findAll({
+          where: { claseId: clase.id },
+          include: [{ model: Usuarios, attributes: ['id', 'nombre', 'imagen'] }]
+      });
 
-    let nivelesCapitalizados = [];
-    if (typeof clase.usuario.niveles === 'string') {
-      nivelesCapitalizados = clase.usuario.niveles
-        .split(',')
-        .map(nivel => capitalizeFirstLetter(nivel.trim()));
-    }
+      // Validar la imagen del usuario
+      if (!clase.usuario.imagen) {
+          clase.usuario.imagen = '/uploads/usuarios/default.jpg'; // Imagen por defecto si no hay URL
+      }
 
-    res.render('mostrar-clase', {
-      nombrePagina: clase.nombre,
-      clase,
-      subcategorias: clase.subcategorias,
-      lugar: clase.ubicacion,
-      niveles: nivelesCapitalizados,
-      tarifa: clase.usuario.tarifa,
-      comentarios,
-      usuario: req.user // Enviar req.user pero la vista no depende de él para renderizarse
-    })
+      let nivelesCapitalizados = [];
+      if (typeof clase.usuario.niveles === 'string') {
+          nivelesCapitalizados = clase.usuario.niveles
+              .split(',')
+              .map(nivel => capitalizeFirstLetter(nivel.trim()));
+      }
+
+      res.render('mostrar-clase', {
+          nombrePagina: clase.nombre,
+          clase,
+          subcategorias: clase.subcategorias,
+          lugar: clase.ubicacion,
+          niveles: nivelesCapitalizados,
+          tarifa: clase.usuario.tarifa,
+          comentarios,
+          usuario: req.user // Enviar req.user pero la vista no depende de él para renderizarse
+      });
   } catch (error) {
-    console.error('Error al mostrar la clase:', error)
-    res.status(500).send('Hubo un error al cargar la clase.')
+      console.error('Error al mostrar la clase:', error);
+      res.status(500).send('Hubo un error al cargar la clase.');
   }
-}
+};
+
 
 //! Muestra las clases agrupadas por subcategorías
 exports.mostrarSubcategoria = async (req, res) => {

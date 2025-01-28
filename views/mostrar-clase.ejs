@@ -107,9 +107,9 @@
       <div class="box-profesor">
         <!-- Imagen del profesor -->
         <div class="avatar-wrapper">
-          <img src="/uploads/usuarios/default.jpg" class="avatar" alt="Imagen del tutor">
-        </div>
-
+          <img src="<%= clase.usuario.imagen || '/uploads/usuarios/default.jpg' %>" class="avatar" alt="Imagen del tutor">
+      </div>
+      
         <!-- Tutor y tarifa -->
         <ul class="list-tutor-tarifa">
           <li>
