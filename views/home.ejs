@@ -109,8 +109,12 @@
                                 <!-- Bloque detalles del tutor -->
                                 <div class="info-detail">
                                    
+                                    <% if (clase.usuario) { %>
                                         <h3><%= clase.usuario.nombre %></h3>
-                                   
+                                    <% } else { %>
+                                        <h3>Usuario no disponible</h3>
+                                    <% } %>
+                                                                       
                                     <p><%= clase.nombre %></p>
                                     <div class="box-descripcion-home">
                                         <span class="descripcion"><%= clase.usuario.about %></span>
