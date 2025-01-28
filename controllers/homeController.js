@@ -36,11 +36,12 @@ exports.home = async (req, res) => {
       Categorias.findAll(),
       Subcategorias.findAll(),
       Clases.findAll({
-        attributes: ['nombre', 'imagen', 'slug', 'ubicacion'],  // Incluir la ubicación de la clase
+        attributes: ['nombre', 'imagen', 'slug', 'ubicacion'], 
         include: [
           {
             model: Usuarios,
-            attributes: ['nombre', 'imagen', 'tarifa', 'ubicacion', 'about']
+            attributes: ['nombre', 'imagen', 'tarifa', 'ubicacion', 'about'],
+            required: true // Excluir clases sin usuario
           }
         ],
         limit: 10
