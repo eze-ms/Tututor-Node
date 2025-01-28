@@ -3,6 +3,7 @@ const db = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 const Categoria = require('./Categorias');
 const Usuarios = require('./Usuarios');
+const { DataTypes } = require('sequelize');
 
 
 const Clase = db.define('clases', {
@@ -44,9 +45,9 @@ const Clase = db.define('clases', {
     defaultValue: 'Presencial'
   },
   imagen: {
-    type: Sequelize.TEXT,
-    allowNull: true
-  },
+    type: DataTypes.STRING(255),
+    allowNull: true,
+},
   slug: {
     type: Sequelize.STRING,
     allowNull: false

@@ -158,7 +158,16 @@ exports.formEditarPerfil = async (req, res) => {
 //! Controlador para manejar la edición del perfil y la subida de imágenes
 exports.editarPerfil = async (req, res) => {
     try {
+        console.log('DEBUG: Iniciando el proceso de edición de perfil.');
+
+        // Buscar el usuario en la base de datos
         const usuario = await Usuarios.findByPk(req.user.id);
+        if (!usuario) {
+            console.error('ERROR: Usuario no encontrado en la base de datos.');
+            req.flash('error', 'Usuario no encontrado');
+            return res.redirect('/administracion');
+        }
+        console.log('DEBUG: Usuario encontrado:', usuario);
 
         // Validaciones del formulario
         const validaciones = [
@@ -173,11 +182,11 @@ exports.editarPerfil = async (req, res) => {
         ];
 
         await Promise.all(validaciones.map((validation) => validation.run(req)));
-
         const errores = validationResult(req);
 
         if (!errores.isEmpty()) {
             const advertencias = errores.array().map((error) => `<li>${error.msg}</li>`);
+            console.error('ERROR: Validaciones fallidas:', advertencias);
 
             return res.render('editar-perfil', {
                 nombrePagina: 'Editar perfil',
@@ -191,14 +200,17 @@ exports.editarPerfil = async (req, res) => {
 
         // Convertir los niveles seleccionados en una cadena separada por comas
         usuario.niveles = niveles ? niveles.join(',') : null;
+        console.log('DEBUG: Datos del usuario antes de asignar la imagen:', usuario);
 
         // Si hay una imagen nueva, guardar la URL pública de S3
         if (req.file) {
-            console.log('URL de la imagen a guardar:', req.file.location);  // Log para depurar la URL
+            console.log('DEBUG: Archivo recibido. URL de la imagen:', req.file.location);
             usuario.imagen = req.file.location; // URL pública de S3
-            await usuario.save(); // Guardar en la base de datos
+            console.log('DEBUG: URL de la imagen asignada al usuario:', usuario.imagen);
+        } else {
+            console.log('DEBUG: No se recibió ninguna imagen nueva.');
         }
-        
+
         // Asignar los datos al usuario
         usuario.nombre = nombre;
         usuario.apellido = apellido;
@@ -208,12 +220,16 @@ exports.editarPerfil = async (req, res) => {
         usuario.tarifa = tarifa;
         usuario.ubicacion = ubicacion;
 
+        console.log('DEBUG: Datos del usuario antes de guardar:', usuario);
+
         // Guardar cambios
         await usuario.save();
+        console.log('DEBUG: Cambios guardados correctamente en la base de datos.');
 
         req.flash('exito', 'Perfil actualizado correctamente');
         return res.redirect('/administracion');
     } catch (error) {
+        console.error('ERROR: Hubo un error al editar el perfil:', error);
         req.flash('error', 'Hubo un error al editar el perfil');
         return res.redirect('/editar-perfil');
     }

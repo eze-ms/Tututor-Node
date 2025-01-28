@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
 const bcrypt = require('bcrypt-nodejs');
+const { DataTypes } = require('sequelize');
+
 
 const Usuarios = db.define('usuarios', {
     id: {
@@ -30,7 +32,8 @@ const Usuarios = db.define('usuarios', {
         allowNull: true
     },
     imagen: {
-        type: Sequelize.STRING(60)
+        type: DataTypes.STRING(255),
+        allowNull: true,
     },
     about: {
         type: Sequelize.TEXT
